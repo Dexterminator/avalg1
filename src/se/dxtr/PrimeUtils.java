@@ -12,7 +12,7 @@ public class PrimeUtils {
         if(b.equals(BigInteger.ZERO)){
             return a;
         } else {
-            return gcd(a, a.mod(b));
+            return gcd(b, a.mod(b));
         }
     }
 
@@ -30,27 +30,47 @@ public class PrimeUtils {
         return d;
     }
 
-    public static boolean helpMillerRabin(BigInteger n, Random r){
-        BigInteger random = new BigInteger(n.bitLength()-1, r).mod(n); // Pick random number
+    private static boolean helpMillerRabin(BigInteger n, Random r){
+        BigInteger two = new BigInteger("2");
+        BigInteger three = new BigInteger("3");
+        // Base cases
+        if(n.equals(BigInteger.ZERO) || n.equals(BigInteger.ONE)){
+            return false;
+        }
+
+        if(n.equals(two) || n.equals(three)){
+            return true;
+        }
+
+        if(n.mod(two).equals(BigInteger.ZERO)){
+            return false;
+        }
+
+        BigInteger random = BigInteger.ZERO;
+
+
+        do {
+            random =  new BigInteger(n.bitLength()-1, r);
+        } while(random.compareTo(BigInteger.ONE) <= 0);
 
         // Make sure this number is coprime with n
-        if(!gcd(n, random).equals(BigInteger.ONE))
+        if(!(gcd(n, random).equals(BigInteger.ONE))) {
             return false;
+        }
 
         BigInteger t = n.subtract(BigInteger.ONE);
         int s = 0;
-        BigInteger two = new BigInteger("2");
         // Find the number s and t as described in lecture notes
-        while (t.mod(two).equals(BigInteger.ZERO)) {
+        while ((t.mod(two)).equals(BigInteger.ZERO)) {
             t = t.divide(two);
             s++;
         }
-
         BigInteger firstVal = modPow(random, t, n);
+
 
         /* According to the lecture notes, if firstVal == 1 then n is probably a prime */
 
-        if(firstVal.mod(n).equals(BigInteger.ONE))
+        if(firstVal.equals(BigInteger.ONE))
             return true;
 
         /*
@@ -60,6 +80,7 @@ public class PrimeUtils {
          */
         BigInteger iterVal = firstVal;
         for( int i = 0; i < s; i++){
+
             if(iterVal.equals(n.subtract(BigInteger.ONE))){
                 return true;
             }
@@ -77,6 +98,7 @@ public class PrimeUtils {
     public static boolean millerRabin(BigInteger n, int k){
         Random r = new Random();
         for(int i = 0; i < k; i++){
+
             /* If we receive false from the help function,
              n is definitely composite
             */
@@ -89,20 +111,19 @@ public class PrimeUtils {
     }
 
     /**
-     * Own version of the modPow function
+     * Own version of the BigInteger.modPow function
      * @param a
      * @param b
      * @param n
      * @return
      */
     public static BigInteger modPow(BigInteger a, BigInteger b, BigInteger n){
-        BigInteger temp =  a;
-        for( int i = 0; i < b.intValue(); i++){
+        BigInteger temp =  BigInteger.ONE;
+        for( BigInteger i = b; i.compareTo(BigInteger.ZERO) > 0; i = i.subtract(BigInteger.ONE)){
             temp = temp.multiply(temp);
             temp = temp.mod(n);
         }
-
-        return temp.mod(n);
+        return temp;
     }
 
 
