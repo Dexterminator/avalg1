@@ -1,33 +1,74 @@
 package se.dxtr;
 
 import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Random;
 
 /**
  * Created by Ludde on 2014-11-04.
  */
 public class PrimeUtils {
+    private final static SecureRandom random = new SecureRandom();
 
-    public static BigInteger gcd(BigInteger a, BigInteger b){
+    public static BigInteger gcd(BigInteger a, BigInteger b) {
         if(b.equals(BigInteger.ZERO)){
             return a;
-        } else {
-            return gcd(b, a.mod(b));
         }
+        return gcd(b, a.mod(b));
     }
 
-    public static BigInteger pollardRho(BigInteger n) {
-        BigInteger d = new BigInteger("1");
-        BigInteger x = new BigInteger("2");
-        BigInteger y;
-        while (d.equals(BigInteger.ONE)){
-            x = x.pow(2).add(BigInteger.ONE).mod(n);
-            y = x.pow(2).add(BigInteger.ONE).mod(n);
-            d = gcd(x.subtract(y).abs(), n);
+    private static BigInteger g(BigInteger x, BigInteger n, BigInteger add){
+        return x
+                .multiply(x)
+                .add(add)
+                .mod(n);
+    }
+
+    public static BigInteger helpPollardRho(BigInteger n) {
+
+        BigInteger d = BigInteger.ONE;
+        BigInteger add = new BigInteger(n.bitLength(), random);
+        BigInteger x = new BigInteger(n.bitLength(), random);
+        BigInteger y = x;
+        /*
+        if(n.mod(new BigInteger("2")).equals(BigInteger.ZERO)){
+            return new BigInteger("2");
         }
+        */
+        if(n.mod(new BigInteger("2")).equals(BigInteger.ZERO)){
+            return new BigInteger("2");
+        }
+        while (d.equals(BigInteger.ONE)){
+            x = g(x, n, add);
+            y = g(g(y, n, add), n, add);
+            d = gcd(y.subtract(x).abs(), n);
+        }
+        /*
         if (d.equals(n))
             return new BigInteger("-1");
+            */
         return d;
+    }
+
+    public static ArrayList<BigInteger> pollardRho(BigInteger n){
+        ArrayList<BigInteger> factors = new ArrayList<BigInteger>();
+        BigInteger possiblePrime = helpPollardRho(n);
+        while(true){
+            if(millerRabin(possiblePrime, 20)){
+                System.out.println(possiblePrime);
+                factors.add(possiblePrime);
+                n = n.divide(possiblePrime);
+                if(n.equals(BigInteger.ONE)){
+                    break;
+                }
+                possiblePrime = helpPollardRho(n);
+            } else {
+                possiblePrime = helpPollardRho(possiblePrime);
+            }
+        }
+
+        return factors;
     }
 
     private static boolean helpMillerRabin(BigInteger n, Random r){
@@ -65,6 +106,7 @@ public class PrimeUtils {
             t = t.divide(two);
             s++;
         }
+
         BigInteger firstVal = modPow(random, t, n);
 
 
@@ -123,7 +165,7 @@ public class PrimeUtils {
             temp = temp.multiply(temp);
             temp = temp.mod(n);
         }
-        return temp;
+        return temp.mod(n);
     }
 
 
