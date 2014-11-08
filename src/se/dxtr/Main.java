@@ -17,7 +17,7 @@ public class Main {
         int j = 0;
         initialPrint(personnummer, j);
         // Change the index for each core
-        for(long i = 0; i < 25; i++){
+        for(long i = 50; i < 75; i++){
 
             BigInteger number = longPersonnummer.add((BigInteger.valueOf(i)));
             System.out.println("******** NEW NUMBER: " + number + " ********");

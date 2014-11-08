@@ -55,16 +55,19 @@ public class PrimeUtils {
         ArrayList<BigInteger> factors = new ArrayList<BigInteger>();
         BigInteger possiblePrime = helpPollardRho(n);
         while(true){
-            if(millerRabin(possiblePrime, 20)){
+            if(millerRabin(possiblePrime, 4)){
                 System.out.println(possiblePrime);
                 factors.add(possiblePrime);
                 n = n.divide(possiblePrime);
                 if(n.equals(BigInteger.ONE)){
                     break;
+                } else {
+                    System.out.println(n);
                 }
                 possiblePrime = helpPollardRho(n);
             } else {
                 possiblePrime = helpPollardRho(possiblePrime);
+                System.out.println("NOT PRIME: " + possiblePrime);
             }
         }
 
@@ -107,7 +110,7 @@ public class PrimeUtils {
             s++;
         }
 
-        BigInteger firstVal = modPow(random, t, n);
+        BigInteger firstVal = modPow2(random, t, n);
 
 
         /* According to the lecture notes, if firstVal == 1 then n is probably a prime */
@@ -127,7 +130,7 @@ public class PrimeUtils {
                 return true;
             }
             // The next value in the sequence is this number raised in two mod n
-            iterVal = modPow(iterVal, two, n);
+            iterVal = modPow2(iterVal, two, n);
         }
 
         /* If none of the numbers in the sequence are equal to n-1,
@@ -150,6 +153,23 @@ public class PrimeUtils {
 
         // If all of the Miller Rabin tests pass, n is probably prime
         return true;
+    }
+
+    public static BigInteger modPow2(BigInteger a, BigInteger b, BigInteger n){
+        BigInteger z = b;
+        BigInteger y = a;
+        BigInteger x = BigInteger.ONE;
+        BigInteger two = new BigInteger("2");
+        while(!z.equals(BigInteger.ZERO)){
+            if(z.mod(two).equals(BigInteger.ZERO)){
+                z = z.divide(two);
+                y = y.pow(2).mod(n);
+            } else {
+                z = z.subtract(BigInteger.ONE);
+                x = x.multiply(y).mod(n);
+            }
+        }
+        return x;
     }
 
     /**
