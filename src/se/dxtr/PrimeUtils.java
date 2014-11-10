@@ -61,7 +61,12 @@ public class PrimeUtils {
                 n = n.divide(possiblePrime);
                 if(n.equals(BigInteger.ONE)){
                     break;
-                } else {
+                } else if(millerRabin(n, 1)){
+                    // In this case, the resulting number is a factor
+                    factors.add(n);
+                    break;
+                }
+                else {
                     System.out.println(n);
                 }
                 possiblePrime = helpPollardRho(n);
