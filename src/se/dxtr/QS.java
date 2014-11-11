@@ -24,9 +24,9 @@ public class QS {
         return new BigDecimal(q).toBigInteger();
     }
 
-    public static int legendre(BigInteger N, int p) {
-        int result = 1;
-        int a = N.mod(BigInteger.valueOf(p)).intValue();
+    public static double legendre(BigInteger N, int p) {
+        double result = 1;
+        double a = N.mod(BigInteger.valueOf(p)).doubleValue();
         int power = (p - 1) / 2;
 
         while (power > 0) {
@@ -67,7 +67,7 @@ public class QS {
             // Case when p mod 4 = 3
             R = PrimeUtils.modPow2(n, BigInteger.valueOf((p + 1) / 4), BigInteger.valueOf(p));
         } else {
-            int res = 0;
+            double res = 0;
             int Z = 2;
             for(Z = 2; ; Z++){
                 res = legendre(BigInteger.valueOf(Z), p);
