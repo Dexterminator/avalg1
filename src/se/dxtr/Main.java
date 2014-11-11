@@ -17,6 +17,10 @@ public class Main {
         int b = QS.getB(longPersonnummer);
         System.out.println(b);
         ArrayList<Integer> factorBase = QS.factorBase(longPersonnummer, b);
+        for(int factor: factorBase){
+            double[] vec = QS.tonelliShanks(longPersonnummer, factor);
+            System.out.println(Arrays.toString(vec));
+        }
 
 //        int j = 0;
 //        initialPrint(personnummer, j);

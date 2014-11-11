@@ -1,5 +1,7 @@
 package se.dxtr;
 
+import com.javafx.tools.doclets.formats.html.SourceToHTMLConverter;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -51,5 +53,64 @@ public class QS {
 
         }
         return factorBase;
+    }
+
+    public static double[] tonelliShanks(BigInteger n, int p){
+        int Q = p-1;
+        int S = 0;
+        BigInteger R;
+        while(Q % 2 == 0){
+            S++;
+            Q /= 2;
+        }
+        if(S == 1){
+            // Case when p mod 4 = 3
+            R = PrimeUtils.modPow2(n, BigInteger.valueOf((p + 1) / 4), BigInteger.valueOf(p));
+        } else {
+            int res = 0;
+            int Z = 2;
+            for(Z = 2; ; Z++){
+                res = legendre(BigInteger.valueOf(Z), p);
+                if(res == -1){
+                    break;
+                }
+            }
+            /*
+            while(res != -1){
+                res = legendre(BigInteger.valueOf(Z), p);
+                Z++;
+            }
+            */
+            BigInteger C = PrimeUtils.modPow2(BigInteger.valueOf(Z), BigInteger.valueOf(Q), BigInteger.valueOf(p));
+            R = PrimeUtils.modPow2(n, BigInteger.valueOf((Q + 1) / 2), BigInteger.valueOf(p));
+            BigInteger t = PrimeUtils.modPow2(n, BigInteger.valueOf(Q), BigInteger.valueOf(p));
+            int M = S;
+
+            while(!t.equals(BigInteger.ONE)){
+                int tempval = 1;
+                int i = 1;
+                while(i < M){
+                    tempval *= 2;
+
+                    if(PrimeUtils.modPow2(t, BigInteger.valueOf(tempval),
+                            BigInteger.valueOf(p)).equals(BigInteger.ONE)){
+                        break;
+                    }
+                    i++;
+
+                }
+                if (i == M && i != 1) {
+                    i--;
+                }
+                BigInteger b = PrimeUtils.modPow2(C, BigInteger.valueOf(2).pow(M-i-1), BigInteger.valueOf(p));
+                R = R.multiply(b).mod(BigInteger.valueOf(p));
+                t = t.multiply(b).multiply(b).mod(BigInteger.valueOf(p));
+                C = b.multiply(b).mod(BigInteger.valueOf(p));
+                M = i;
+            }
+        }
+
+        double[] result = new double[]{R.doubleValue(), p - R.doubleValue()};
+        return result;
     }
 }
