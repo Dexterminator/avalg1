@@ -1,7 +1,5 @@
 package se.dxtr;
 
-import com.javafx.tools.doclets.formats.html.SourceToHTMLConverter;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -50,7 +48,6 @@ public class QS {
                     factorBase.add(i);
                 }
             }
-
         }
         return factorBase;
     }
@@ -66,19 +63,19 @@ public class QS {
         int Q = p-1;
         int S = 0;
         BigInteger R;
-        while(Q % 2 == 0){
+        while (Q % 2 == 0) {
             S++;
             Q /= 2;
         }
-        if(S == 1){
+        if (S == 1) {
             // Case when p mod 4 = 3
             R = PrimeUtils.modPow2(n, BigInteger.valueOf((p + 1) / 4), BigInteger.valueOf(p));
         } else {
             double res = 0;
             int Z = 2;
-            for(Z = 2; ; Z++){
+            for (Z = 2; ; Z++) {
                 res = legendre(BigInteger.valueOf(Z), p);
-                if(res == -1){
+                if (res == -1) {
                     break;
                 }
             }
@@ -93,14 +90,14 @@ public class QS {
             BigInteger t = PrimeUtils.modPow2(n, BigInteger.valueOf(Q), BigInteger.valueOf(p));
             int M = S;
 
-            while(!t.equals(BigInteger.ONE)){
+            while (!t.equals(BigInteger.ONE)) {
                 int tempval = 1;
                 int i = 1;
-                while(i < M){
+                while (i < M) {
                     tempval *= 2;
 
-                    if(PrimeUtils.modPow2(t, BigInteger.valueOf(tempval),
-                            BigInteger.valueOf(p)).equals(BigInteger.ONE)){
+                    if (PrimeUtils.modPow2(t, BigInteger.valueOf(tempval),
+                            BigInteger.valueOf(p)).equals(BigInteger.ONE)) {
                         break;
                     }
                     i++;
@@ -109,7 +106,7 @@ public class QS {
                 if (i == M && i != 1) {
                     i--;
                 }
-                BigInteger b = PrimeUtils.modPow2(C, BigInteger.valueOf(2).pow(M-i-1), BigInteger.valueOf(p));
+                BigInteger b = PrimeUtils.modPow2(C, BigInteger.valueOf(2).pow(M - i - 1), BigInteger.valueOf(p));
                 R = R.multiply(b).mod(BigInteger.valueOf(p));
                 t = t.multiply(b).multiply(b).mod(BigInteger.valueOf(p));
                 C = b.multiply(b).mod(BigInteger.valueOf(p));
@@ -118,5 +115,34 @@ public class QS {
         }
         double[] ret = new double[]{R.doubleValue(), p-R.doubleValue()};
         return ret;
+    }
+
+    public static BigInteger[] getSieveArray (BigInteger n, int size){
+        double tmpFirstX = Math.sqrt(n.doubleValue());
+        BigInteger firstX = new BigDecimal(tmpFirstX).toBigInteger();
+        firstX = BigInteger.valueOf(1);
+        BigInteger[] sieveArray = new BigInteger[size];
+        for (int x = 0; x < size; x++) {
+            sieveArray[x] = Q(firstX.add(BigInteger.valueOf(x)), n);
+        }
+        return sieveArray;
+    }
+
+    public static BigInteger[] performSieving (BigInteger[] sieveArray, ArrayList<Integer> factorBase, BigInteger n) {
+        for (Integer prime : factorBase) {
+            double[] roots = tonelliShanks(n, prime);
+            for (double rooot : roots) {
+                int x = (int) rooot;
+                sieveDivision(sieveArray, prime, x);
+            }
+        }
+        return sieveArray;
+    }
+
+    private static void sieveDivision(BigInteger[] sieveArray, Integer prime, int x) {
+        while (x < sieveArray.length) {
+            sieveArray[x] = sieveArray[x].divide(BigInteger.valueOf(prime));
+            x += prime;
+        }
     }
 }

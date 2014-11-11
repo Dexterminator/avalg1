@@ -17,13 +17,12 @@ public class Main {
         int b = QS.getB(longPersonnummer);
         System.out.println(b);
         ArrayList<Integer> factorBase = QS.factorBase(longPersonnummer, b);
-        ArrayList<double[]> roots =  new ArrayList<double[]>();
-        double[] vec = new double[2];
-        for(int factor: factorBase){
-            roots.add(QS.tonelliShanks(longPersonnummer, factor));
-        }
-        System.out.println(roots.toString());
 
+        BigInteger[] lolSieve = QS.getSieveArray(BigInteger.valueOf(15347), 100);
+        BigInteger[] dividedSieve = QS.performSieving(lolSieve, QS.factorBase(BigInteger.valueOf(15347), QS.getB(BigInteger.valueOf(15347))), BigInteger.valueOf(15347));
+        for (BigInteger bigInteger : lolSieve) {
+            System.out.println(bigInteger.toString());
+        }
 
 //        int j = 0;
 //        initialPrint(personnummer, j);
