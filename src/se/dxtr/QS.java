@@ -49,6 +49,7 @@ public class QS {
                 }
             }
         }
+        factorBase.add(2);
         return factorBase;
     }
 
@@ -132,7 +133,7 @@ public class QS {
         for (Integer prime : factorBase) {
             double[] roots = tonelliShanks(n, prime);
             for (double root : roots) {
-                double x = root - Math.floor(Math.sqrt(n.doubleValue())) % prime;
+                double x = root - Math.ceil(Math.sqrt(n.doubleValue())) % prime;
                 sieveDivision(sieveArray, prime, (int) x);
             }
         }
