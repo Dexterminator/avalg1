@@ -14,6 +14,7 @@ public class Main {
 
         BigInteger personnummer = new BigInteger("9112232872");
         BigInteger longPersonnummer = new BigInteger("9112232872000000000000000000000000000000000000000000000000000000000001");
+        System.out.println(QS.getB(longPersonnummer));
         int j = 0;
         initialPrint(personnummer, j);
         // Change the index for each core
