@@ -15,27 +15,28 @@ public class Main {
         BigInteger personnummer = new BigInteger("9112232872");
         BigInteger longPersonnummer = new BigInteger("9112232872000000000000000000000000000000000000000000000000000000000001");
         BigInteger n = BigInteger.valueOf(15347);
-        System.out.println(n);
+        System.out.println("N: " + n + "\n");
 
         ArrayList<Integer> factorBase = QS.factorBase(n, QS.getB(n));
-        BigInteger[] lolSieve = QS.getSieveArray(n, 100);
-        int[][] yFactors = new int[lolSieve.length][factorBase.size()];
-        BigInteger[] dividedSieve = QS.performSieving(lolSieve, factorBase, n, yFactors);
+        BigInteger[] sieve = QS.getSieveArray(n, 100);
+        BigInteger[] originalSieve = Arrays.copyOf(sieve, sieve.length);
+        int[][] yFactors = new int[sieve.length][factorBase.size()];
+        ArrayList<Integer> smoothIndices = QS.performSieving(sieve, factorBase, n, yFactors);
 
-        for (BigInteger bigInteger : dividedSieve) {
-            System.out.println(bigInteger.toString());
-        }
+//        for (BigInteger bigInteger : sieve) {
+//            System.out.println(bigInteger.toString());
+//        }
 
-        // Some test code for checking that we get the correct factorizations
-        for (int i = 0; i < yFactors.length; i++) {
-            if (dividedSieve[i].equals(BigInteger.ONE)) {
-                System.out.println(Arrays.toString(yFactors[i]));
-                for (int j = 0; j < yFactors[i].length; j++) {
-                    if (yFactors[i][j] > 0)
-                        System.out.println(factorBase.get(j));
+        System.out.println("Indices of smooth y values: " + smoothIndices);
+        for (Integer smoothIndex : smoothIndices) {
+            System.out.println("Smooth number: " + originalSieve[smoothIndex]);
+            System.out.println(Arrays.toString(yFactors[smoothIndex]));
+            for (int i = 0; i < yFactors[smoothIndex].length; i++) {
+                for (int primeCount = 0; primeCount < yFactors[smoothIndex][i]; primeCount++) {
+                    System.out.println(factorBase.get(i));
                 }
             }
-
+            System.out.println();
         }
 
 //        int j = 0;
