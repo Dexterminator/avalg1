@@ -56,6 +56,13 @@ public class QS {
     }
 
     public static double[] tonelliShanks(BigInteger n, int p){
+        if(p == 2){
+            if(n.mod(BigInteger.valueOf(2)).equals(BigInteger.valueOf(1))){
+                return new double[]{1};
+            } else{
+                return new double[]{0};
+            }
+        }
         int Q = p-1;
         int S = 0;
         BigInteger R;
@@ -109,8 +116,7 @@ public class QS {
                 M = i;
             }
         }
-
-        double[] result = new double[]{R.doubleValue(), p - R.doubleValue()};
-        return result;
+        double[] ret = new double[]{R.doubleValue(), p-R.doubleValue()};
+        return ret;
     }
 }

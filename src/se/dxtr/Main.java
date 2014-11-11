@@ -17,11 +17,13 @@ public class Main {
         int b = QS.getB(longPersonnummer);
         System.out.println(b);
         ArrayList<Integer> factorBase = QS.factorBase(longPersonnummer, b);
+        ArrayList<double[]> roots =  new ArrayList<double[]>();
         double[] vec = new double[2];
         for(int factor: factorBase){
-            vec = QS.tonelliShanks(longPersonnummer, factor);
+            roots.add(QS.tonelliShanks(longPersonnummer, factor));
         }
-        System.out.println(Arrays.toString(vec));
+        System.out.println(roots.toString());
+
 
 //        int j = 0;
 //        initialPrint(personnummer, j);
