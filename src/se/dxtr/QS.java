@@ -131,15 +131,15 @@ public class QS {
     public static BigInteger[] performSieving (BigInteger[] sieveArray, ArrayList<Integer> factorBase, BigInteger n) {
         for (Integer prime : factorBase) {
             double[] roots = tonelliShanks(n, prime);
-            for (double rooot : roots) {
-                int x = (int) rooot;
-                sieveDivision(sieveArray, prime, x);
+            for (double root : roots) {
+                double x = root - Math.floor(Math.sqrt(n.doubleValue())) % prime;
+                sieveDivision(sieveArray, prime, (int) x);
             }
         }
         return sieveArray;
     }
 
-    private static void sieveDivision(BigInteger[] sieveArray, Integer prime, int x) {
+    public static void sieveDivision(BigInteger[] sieveArray, Integer prime, int x) {
         while (x < sieveArray.length) {
             sieveArray[x] = sieveArray[x].divide(BigInteger.valueOf(prime));
             x += prime;

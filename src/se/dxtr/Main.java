@@ -14,13 +14,14 @@ public class Main {
 
         BigInteger personnummer = new BigInteger("9112232872");
         BigInteger longPersonnummer = new BigInteger("9112232872000000000000000000000000000000000000000000000000000000000001");
-        int b = QS.getB(longPersonnummer);
-        System.out.println(b);
-        ArrayList<Integer> factorBase = QS.factorBase(longPersonnummer, b);
+        BigInteger n = BigInteger.valueOf(15347);
+        System.out.println(n);
 
-        BigInteger[] lolSieve = QS.getSieveArray(BigInteger.valueOf(15347), 100);
-        BigInteger[] dividedSieve = QS.performSieving(lolSieve, QS.factorBase(BigInteger.valueOf(15347), QS.getB(BigInteger.valueOf(15347))), BigInteger.valueOf(15347));
-        for (BigInteger bigInteger : lolSieve) {
+        ArrayList<Integer> factorBase = QS.factorBase(n, QS.getB(n));
+        BigInteger[] lolSieve = QS.getSieveArray(n, 100);
+        BigInteger[] dividedSieve = QS.performSieving(lolSieve, factorBase, n);
+
+        for (BigInteger bigInteger : dividedSieve) {
             System.out.println(bigInteger.toString());
         }
 
