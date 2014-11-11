@@ -42,6 +42,7 @@ public class QS {
 
     public static ArrayList<Integer> factorBase(BigInteger n, int b) {
         ArrayList<Integer> factorBase = new ArrayList<Integer>();
+        factorBase.add(2);
         for (int i = 2; i < b; i++) {
             if (BigInteger.valueOf(i).isProbablePrime(10)) {
                 if (legendre(n, i) == 1) {
@@ -49,7 +50,6 @@ public class QS {
                 }
             }
         }
-        factorBase.add(2);
         return factorBase;
     }
 
@@ -129,20 +129,24 @@ public class QS {
         return sieveArray;
     }
 
-    public static BigInteger[] performSieving (BigInteger[] sieveArray, ArrayList<Integer> factorBase, BigInteger n) {
+    public static BigInteger[] performSieving (BigInteger[] sieveArray, ArrayList<Integer> factorBase, BigInteger n,
+                                               int[][] yFactors) {
+        int primeIndex = 0;
         for (Integer prime : factorBase) {
             double[] roots = tonelliShanks(n, prime);
             for (double root : roots) {
                 double x = root - Math.ceil(Math.sqrt(n.doubleValue())) % prime;
-                sieveDivision(sieveArray, prime, (int) x);
+                sieveDivision(sieveArray, prime, (int) x, yFactors, primeIndex);
             }
+            primeIndex++;
         }
         return sieveArray;
     }
 
-    public static void sieveDivision(BigInteger[] sieveArray, Integer prime, int x) {
+    public static void sieveDivision(BigInteger[] sieveArray, Integer prime, int x, int[][] yFactors, int primeIndex) {
         while (x < sieveArray.length) {
             sieveArray[x] = sieveArray[x].divide(BigInteger.valueOf(prime));
+            yFactors[x][primeIndex]++;
             x += prime;
         }
     }

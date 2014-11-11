@@ -19,10 +19,23 @@ public class Main {
 
         ArrayList<Integer> factorBase = QS.factorBase(n, QS.getB(n));
         BigInteger[] lolSieve = QS.getSieveArray(n, 100);
-        BigInteger[] dividedSieve = QS.performSieving(lolSieve, factorBase, n);
+        int[][] yFactors = new int[lolSieve.length][factorBase.size()];
+        BigInteger[] dividedSieve = QS.performSieving(lolSieve, factorBase, n, yFactors);
 
         for (BigInteger bigInteger : dividedSieve) {
             System.out.println(bigInteger.toString());
+        }
+
+        // Some test code for checking that we get the correct factorizations
+        for (int i = 0; i < yFactors.length; i++) {
+            if (dividedSieve[i].equals(BigInteger.ONE)) {
+                System.out.println(Arrays.toString(yFactors[i]));
+                for (int j = 0; j < yFactors[i].length; j++) {
+                    if (yFactors[i][j] > 0)
+                        System.out.println(factorBase.get(j));
+                }
+            }
+
         }
 
 //        int j = 0;
