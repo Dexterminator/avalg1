@@ -14,33 +14,36 @@ public class Main {
 
         BigInteger personnummer = new BigInteger("9112232872");
         BigInteger longPersonnummer = new BigInteger("9112232872000000000000000000000000000000000000000000000000000000000001");
-        System.out.println(QS.getB(longPersonnummer));
-        int j = 0;
-        initialPrint(personnummer, j);
-        // Change the index for each core
-        for(long i = 50; i < 75; i++){
+        int b = QS.getB(longPersonnummer);
+        System.out.println(b);
+        ArrayList<Integer> factorBase = QS.factorBase(longPersonnummer, b);
 
-            BigInteger number = longPersonnummer.add((BigInteger.valueOf(i)));
-            System.out.println("******** NEW NUMBER: " + number + " ********");
-            ArrayList<BigInteger> factors = PrimeUtils.pollardRho(number);
-            if(factors.size() == 1){
-                System.out.println(number + " is prime!");
-            } else {
-                System.out.println("The factors for " + number + " are " + factors.toString());
-            }
-            LinkedHashMap<BigInteger, Integer> matrix = new LinkedHashMap<BigInteger, Integer>();
-            for(BigInteger factor : factors){
-                if(matrix.containsKey(factor)){
-                    int num = matrix.get(factor) + 1;
-                    matrix.put(factor, num);
-                } else {
-                    matrix.put(factor, 1);
-                }
-            }
-
-
-            writeToFile(matrix);
-        }
+//        int j = 0;
+//        initialPrint(personnummer, j);
+//        // Change the index for each core
+//        for(long i = 50; i < 75; i++){
+//
+//            BigInteger number = longPersonnummer.add((BigInteger.valueOf(i)));
+//            System.out.println("******** NEW NUMBER: " + number + " ********");
+//            ArrayList<BigInteger> factors = PrimeUtils.pollardRho(number);
+//            if(factors.size() == 1){
+//                System.out.println(number + " is prime!");
+//            } else {
+//                System.out.println("The factors for " + number + " are " + factors.toString());
+//            }
+//            LinkedHashMap<BigInteger, Integer> matrix = new LinkedHashMap<BigInteger, Integer>();
+//            for(BigInteger factor : factors){
+//                if(matrix.containsKey(factor)){
+//                    int num = matrix.get(factor) + 1;
+//                    matrix.put(factor, num);
+//                } else {
+//                    matrix.put(factor, 1);
+//                }
+//            }
+//
+//
+//            writeToFile(matrix);
+//        }
 
 
 
