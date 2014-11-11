@@ -38,7 +38,9 @@ public class Main {
             }
             System.out.println();
         }
-
+        ArrayList<BigInteger> pollardFactors = PrimeUtils.pollardRho(longPersonnummer);
+        System.out.println("Pollar factors of: " + longPersonnummer);
+        System.out.println(pollardFactors.toString());
 //        int j = 0;
 //        initialPrint(personnummer, j);
 //        // Change the index for each core

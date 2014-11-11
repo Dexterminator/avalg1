@@ -55,19 +55,15 @@ public class PrimeUtils {
         ArrayList<BigInteger> factors = new ArrayList<BigInteger>();
         BigInteger possiblePrime = helpPollardRho(n);
         while(true){
-            if(millerRabin(possiblePrime, 4)){
-                System.out.println(possiblePrime);
+            if(possiblePrime.isProbablePrime(5)){
                 factors.add(possiblePrime);
                 n = n.divide(possiblePrime);
                 if(n.equals(BigInteger.ONE)){
                     break;
-                } else if(millerRabin(n, 1)){
+                } else if(n.isProbablePrime(5)){
                     // In this case, the resulting number is a factor
                     factors.add(n);
                     break;
-                }
-                else {
-                    System.out.println(n);
                 }
                 possiblePrime = helpPollardRho(n);
             } else {
