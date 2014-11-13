@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by dexter on 11/11/14.
@@ -162,6 +163,91 @@ public class QS {
                 smoothIndices.add(x);
             }
             x += prime;
+        }
+    }
+
+    public static int[][] getExpMatrix(ArrayList<Integer> factorBase, ArrayList<Integer> smoothIndices,
+                                       BigInteger[] originalSieve) {
+        // TODO: Make sure matrix is mod 2
+        int[][] expMatrix = new int[smoothIndices.size()][factorBase.size() + smoothIndices.size()];
+        for (int i = 0; i < smoothIndices.size(); i++) {
+            int smoothIndex = smoothIndices.get(i);
+            ArrayList<BigInteger> factors = PrimeUtils.pollardRho(originalSieve[smoothIndex]);
+            for (BigInteger factor : factors) {
+                expMatrix[i][factorBase.indexOf(factor.intValue())]++;
+            }
+        }
+
+        // Append the identity matrix to the exponent matrix
+        int j = factorBase.size();
+        for (int i = 0; i < expMatrix.length; i++) {
+            expMatrix[i][j] = 1;
+            j++;
+        }
+        return expMatrix;
+    }
+
+    public static ArrayList<Integer> processMatrix(int[][] matrix, int baseSize) {
+        // Perform gaussian elimination
+        for (int col = 0; col < baseSize; col++) {
+            gaussForColumn(matrix, col);
+        }
+        printMatrix(matrix);
+
+        // Find all zero rows
+        ArrayList<Integer> zeroRows = new ArrayList<Integer>();
+        for (int i = 0; i < matrix.length; i++) {
+            if (isZeroRow(matrix[i], baseSize))
+                zeroRows.add(i);
+        }
+
+        // Find indices corresponding to zero rows by traversing the identity matrix
+        ArrayList<Integer> indices = new ArrayList<Integer>();
+        for (Integer zeroRow : zeroRows) {
+            for (int col = baseSize; col < matrix[zeroRow].length; col++) {
+                if (matrix[zeroRow][col] == 1) {
+                    indices.add(col - baseSize);
+                }
+            }
+            System.out.println(indices);
+        }
+        System.out.println(zeroRows);
+        return indices;
+    }
+
+    private static boolean isZeroRow (int[] row, int baseSize) {
+        for (int i = 0; i < baseSize; i++) {
+            if (row[i] != 0)
+                return false;
+        }
+        return true;
+    }
+
+    public static void gaussForColumn (int[][] matrix, int column) {
+        for (int row = 0; row < matrix.length; row++) {
+            if (matrix[row][column] == 1) {
+                performSubtractions(matrix, row, column);
+                return;
+            }
+        }
+    }
+
+    private static void performSubtractions(int[][] matrix, int rowToSubtract, int column) {
+        for (int row = 0; row < matrix.length; row++) {
+            if (row != rowToSubtract && matrix[row][column] == 1)
+                subtractRow(matrix, rowToSubtract, row);
+        }
+    }
+
+    private static void subtractRow(int[][] matrix, int row1, int row2) {
+        for (int i = 0; i < matrix[row2].length; i++) {
+            matrix[row2][i] ^= matrix[row1][i];
+        }
+    }
+
+    private static void printMatrix(int[][] matrix) {
+        for (int[] ints : matrix) {
+            System.out.println(Arrays.toString(ints));
         }
     }
 }
