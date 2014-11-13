@@ -21,21 +21,17 @@ public class Main {
         BigInteger[] sieve = QS.getSieveArray(n, 100);
         BigInteger[] originalSieve = Arrays.copyOf(sieve, sieve.length);
         ArrayList<Integer> smoothIndices = QS.performSieving(sieve, factorBase, n);
-        for (Integer i : smoothIndices) {
-            ArrayList<BigInteger> factors = PrimeUtils.pollardRho(originalSieve[i]);
-            int[] expVector = new int[factorBase.size()];
-            for (BigInteger factor : factors) {
-                expVector[factorBase.indexOf(factor)]++;
-            }
-            System.out.println(Arrays.toString(expVector));
+        int[][] expMatrix = QS.getExpMatrix(factorBase, smoothIndices, originalSieve);
+        for (int[] ints : expMatrix) {
+            System.out.println(Arrays.toString(ints));
         }
 
-//        for (BigInteger bigInteger : sieve) {
-//            System.out.println(bigInteger.toString());
-//        }
-        ArrayList<BigInteger> pollardFactors = PrimeUtils.pollardRho(longPersonnummer);
-        System.out.println("Pollar factors of: " + longPersonnummer);
-        System.out.println(pollardFactors.toString());
+
+
+
+//        ArrayList<BigInteger> pollardFactors = PrimeUtils.pollardRho(longPersonnummer);
+//        System.out.println("Pollar factors of: " + longPersonnummer);
+//        System.out.println(pollardFactors.toString());
 //        int j = 0;
 //        initialPrint(personnummer, j);
 //        // Change the index for each core

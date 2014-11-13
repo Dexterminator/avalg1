@@ -152,4 +152,21 @@ public class QS {
             x += prime;
         }
     }
+
+    public static int[][] getExpMatrix(ArrayList<Integer> factorBase, ArrayList<Integer> smoothIndices,
+                                       BigInteger[] originalSieve) {
+        int[][] expMatrix = new int[smoothIndices.size()][factorBase.size()];
+        for (int i = 0; i < smoothIndices.size(); i++) {
+            int smoothIndex = smoothIndices.get(i);
+            ArrayList<BigInteger> factors = PrimeUtils.pollardRho(originalSieve[smoothIndex]);
+            for (BigInteger factor : factors) {
+                expMatrix[i][factorBase.indexOf(factor.intValue())]++;
+            }
+        }
+        return expMatrix;
+    }
+
+    public static void processMatrix(int[][] matrix) {
+
+    }
 }
