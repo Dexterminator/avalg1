@@ -160,6 +160,7 @@ public class QS {
                 sieveArray[x] = sieveArray[x].divide(BigInteger.valueOf(prime));
             }
             */
+            //TODO: use x to calculate Q(x) again, check the mod
             /*
             while(BigInteger.valueOf((long) Math.round(Math.exp(sieveArray[x]))).mod(BigInteger.valueOf(prime)).equals(BigInteger.ZERO)){
                 sieveArray[x] -= Math.log(prime);
@@ -177,6 +178,7 @@ public class QS {
         int[][] expMatrix = new int[smoothIndices.size()][factorBase.size() + smoothIndices.size()];
         for (int i = 0; i < smoothIndices.size(); i++) {
             int smoothIndex = smoothIndices.get(i);
+            // TODO: Use smoothIndex to calculate Q(x) again, as well as probably use Trial Division instead
             ArrayList<BigInteger> factors = PrimeUtils.pollardRho(BigInteger.valueOf(Math.round(Math.exp(originalSieve[smoothIndex]))));
             System.out.println(Math.exp(originalSieve[smoothIndex]));
             System.out.println(factors);
@@ -274,6 +276,7 @@ public class QS {
      * Here be dragons
      *
      * This code may summon Cthulhu if used improperly
+     * TODO: Remove unnecessary Math.exp, use smoothIndicies instead.
      */
     private static BigInteger getFactor(ArrayList<Integer> subsetIndices, ArrayList<Integer> smoothIndices,
                                        float[] originalSieve, BigInteger n) {
