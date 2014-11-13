@@ -22,10 +22,17 @@ public class Main {
         float[] sieve = QS.getSieveArray(n, (int) Math.round(Math.pow(factorBase.size(), 2)));
         float[] originalSieve = Arrays.copyOf(sieve, sieve.length);
         ArrayList<Integer> smoothIndices = QS.performSieving(sieve, factorBase, n);
-        System.out.println(smoothIndices);
-        //int[][] expMatrix = QS.getExpMatrix(factorBase, smoothIndices, originalSieve);
-        //ArrayList<Integer> indices = QS.processMatrix(expMatrix, factorBase.size());
-
+        int[][] expMatrix = QS.getExpMatrix(factorBase, smoothIndices, originalSieve);
+        ArrayList<Integer>[] subsets = QS.processMatrix(expMatrix, factorBase.size());
+        BigInteger factor = QS.getNonTrivialFactor(subsets, smoothIndices, originalSieve, n);
+        if (factor != null) {
+            System.out.println(factor);
+        }
+        // factor may be null here if we fucked up
+//        for (Integer index : indices) {
+//            int x = index + root;
+//            BigInteger y = originalSieve[smoothIndices.get(index)];
+//        }
 
 //        ArrayList<BigInteger> pollardFactors = PrimeUtils.pollardRho(longPersonnummer);
 //        System.out.println("Pollar factors of: " + longPersonnummer);

@@ -170,7 +170,6 @@ public class QS {
 
     public static int[][] getExpMatrix(ArrayList<Integer> factorBase, ArrayList<Integer> smoothIndices,
                                        BigInteger[] originalSieve) {
-        // TODO: Make sure matrix is mod 2
         int[][] expMatrix = new int[smoothIndices.size()][factorBase.size() + smoothIndices.size()];
         for (int i = 0; i < smoothIndices.size(); i++) {
             int smoothIndex = smoothIndices.get(i);
@@ -189,7 +188,7 @@ public class QS {
         return expMatrix;
     }
 
-    public static ArrayList<Integer> processMatrix(int[][] matrix, int baseSize) {
+    public static ArrayList<Integer>[] processMatrix(int[][] matrix, int baseSize) {
         // Perform gaussian elimination
         for (int col = 0; col < baseSize; col++) {
             gaussForColumn(matrix, col);
@@ -204,17 +203,18 @@ public class QS {
         }
 
         // Find indices corresponding to zero rows by traversing the identity matrix
-        ArrayList<Integer> indices = new ArrayList<Integer>();
-        for (Integer zeroRow : zeroRows) {
-            for (int col = baseSize; col < matrix[zeroRow].length; col++) {
-                if (matrix[zeroRow][col] == 1) {
+        ArrayList<Integer>[] subsets = new ArrayList[zeroRows.size()];
+        for (int i = 0; i < zeroRows.size(); i++) {
+            ArrayList<Integer> indices = new ArrayList<Integer>();
+            for (int col = baseSize; col < matrix[zeroRows.get(i)].length; col++) {
+                if (matrix[zeroRows.get(i)][col] == 1) {
                     indices.add(col - baseSize);
                 }
             }
-            System.out.println(indices);
+            subsets[i] = indices;
         }
         System.out.println(zeroRows);
-        return indices;
+        return subsets;
     }
 
     private static boolean isZeroRow (int[] row, int baseSize) {
@@ -251,5 +251,35 @@ public class QS {
         for (int[] ints : matrix) {
             System.out.println(Arrays.toString(ints));
         }
+    }
+
+    public static BigInteger getNonTrivialFactor(ArrayList<Integer>[] subsets, ArrayList<Integer> smoothIndices,
+                                                 BigInteger[] originalSieve, BigInteger n) {
+        for (ArrayList<Integer> subset : subsets) {
+            BigInteger factor = getFactor(subset, smoothIndices, originalSieve, n);
+            if (!factor.equals(BigInteger.ONE) && !factor.equals(n))
+                return factor;
+        }
+        return null;
+    }
+
+    /**
+     * Here be dragons
+     */
+    private static BigInteger getFactor(ArrayList<Integer> subsetIndices, ArrayList<Integer> smoothIndices,
+                                       BigInteger[] originalSieve, BigInteger n) {
+        int root = (int) Math.ceil(Math.sqrt(n.doubleValue()));
+        double x = Math.pow(smoothIndices.get(subsetIndices.get(0)) + root, 2);
+        BigInteger y = originalSieve[smoothIndices.get(subsetIndices.get(0))];
+        for (int i = 1; i < subsetIndices.size(); i++) {
+            x = x * Math.pow(smoothIndices.get(subsetIndices.get(i)) + root, 2);
+            y = y.multiply(originalSieve[smoothIndices.get(subsetIndices.get(i))]);
+        }
+        // x congruent with y (mod n) at this point, sqrt to get the values to calculate gcd
+        BigInteger a = BigInteger.valueOf(Math.round(Math.sqrt(x)));
+        BigInteger b = BigInteger.valueOf(Math.round(Math.sqrt(y.doubleValue())));
+
+        BigInteger factor = PrimeUtils.gcd(a.subtract(b), n);
+        return factor;
     }
 }
