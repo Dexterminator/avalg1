@@ -1,7 +1,10 @@
 package se.dxtr;
 
+import com.google.common.math.BigIntegerMath;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 
 /**
@@ -10,16 +13,20 @@ import java.util.ArrayList;
 public class QS {
     public static int getB(BigInteger n) {
         double c = 3;
-        double tempN = n.doubleValue();
-        double logs = Math.log(tempN) * Math.log(Math.log(tempN));
-        double b = c * Math.exp(0.5 * Math.sqrt(logs));
-        return (int) Math.round(b);
+        double tempN = Math.log(n.doubleValue());
+        double b = c*Math.exp(0.5*Math.sqrt(tempN*Math.log(tempN)));
+        System.out.println(b);
+        return (int) b;
     }
 
     public static BigInteger Q(BigInteger x, BigInteger n) {
-        double parenthesis = Math.floor(Math.sqrt(n.doubleValue())) + x.doubleValue();
-        double q = Math.pow(parenthesis, 2) - n.doubleValue();
-        return new BigDecimal(q).toBigInteger();
+        BigInteger parenthesis = BigIntegerMath.sqrt(n, RoundingMode.FLOOR).add(x);
+        BigInteger q = parenthesis.multiply(parenthesis).subtract(n);
+        return q;
+        //double parenthesis = Math.floor(Math.sqrt(n.doubleValue())) + x.doubleValue();
+        //System.out.println(Math.pow(parenthesis, 2));
+        //double q = Math.pow(parenthesis, 2) - n.doubleValue();
+        //return new BigDecimal(q).toBigInteger();
     }
 
     public static double legendre(BigInteger N, int p) {
@@ -119,6 +126,8 @@ public class QS {
     }
 
     public static BigInteger[] getSieveArray (BigInteger n, int size){
+        if(size < 100)
+            size = 100;
         double tmpFirstX = Math.sqrt(n.doubleValue());
         BigInteger firstX = new BigDecimal(tmpFirstX).toBigInteger();
         firstX = BigInteger.valueOf(1);
@@ -146,6 +155,9 @@ public class QS {
     public static void sieveDivision(BigInteger[] sieveArray, Integer prime, int x, ArrayList<Integer> smoothIndices) {
         while (x < sieveArray.length) {
             sieveArray[x] = sieveArray[x].divide(BigInteger.valueOf(prime));
+            while(sieveArray[x].mod(BigInteger.valueOf(prime)).equals(BigInteger.ZERO)){
+                sieveArray[x] = sieveArray[x].divide(BigInteger.valueOf(prime));
+            }
             if (sieveArray[x].equals(BigInteger.ONE)) {
                 smoothIndices.add(x);
             }

@@ -13,18 +13,20 @@ public class Main {
     public static void main(String[] args) {
 
         BigInteger personnummer = new BigInteger("9112232872");
-        BigInteger longPersonnummer = new BigInteger("9112232872000000000000000000000000000000000000000000000000000000000001");
-        BigInteger n = BigInteger.valueOf(15347);
+        //BigInteger longPersonnummer = new BigInteger("9112232872000000000000000000000000000000000000000000000000000000000001");
+        BigInteger longPersonnummer = new BigInteger("91122328720000000000000000000000000001");
+        BigInteger n = BigInteger.valueOf(15342);
         System.out.println("N: " + n + "\n");
 
         ArrayList<Integer> factorBase = QS.factorBase(n, QS.getB(n));
-        BigInteger[] sieve = QS.getSieveArray(n, 100);
+        BigInteger[] sieve = QS.getSieveArray(n, (int) Math.round(Math.pow(factorBase.size(), 2)));
         BigInteger[] originalSieve = Arrays.copyOf(sieve, sieve.length);
         ArrayList<Integer> smoothIndices = QS.performSieving(sieve, factorBase, n);
         for (Integer i : smoothIndices) {
             ArrayList<BigInteger> factors = PrimeUtils.pollardRho(originalSieve[i]);
             int[] expVector = new int[factorBase.size()];
             for (BigInteger factor : factors) {
+                System.out.println(factor);
                 expVector[factorBase.indexOf(factor)]++;
             }
             System.out.println(Arrays.toString(expVector));
