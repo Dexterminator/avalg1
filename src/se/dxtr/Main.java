@@ -25,10 +25,10 @@ public class Main {
         int[][] expMatrix = QS.getExpMatrix(factorBase, smoothIndices, originalSieve);
         ArrayList<Integer>[] subsets = QS.processMatrix(expMatrix, factorBase.size());
         BigInteger factor = QS.getNonTrivialFactor(subsets, smoothIndices, originalSieve, n);
+        // factor may be null here if we fucked up
         if (factor != null) {
             System.out.println(factor);
         }
-        // factor may be null here if we fucked up
 //        for (Integer index : indices) {
 //            int x = index + root;
 //            BigInteger y = originalSieve[smoothIndices.get(index)];
