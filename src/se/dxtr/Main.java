@@ -15,15 +15,16 @@ public class Main {
         BigInteger personnummer = new BigInteger("9112232872");
         //BigInteger longPersonnummer = new BigInteger("9112232872000000000000000000000000000000000000000000000000000000000001");
         BigInteger longPersonnummer = new BigInteger("91122328720000000000000000000000000001");
-        BigInteger n = BigInteger.valueOf(15342);
+        BigInteger n = longPersonnummer;
         System.out.println("N: " + n + "\n");
 
         ArrayList<Integer> factorBase = QS.factorBase(n, QS.getB(n));
-        BigInteger[] sieve = QS.getSieveArray(n, (int) Math.round(Math.pow(factorBase.size(), 2)));
-        BigInteger[] originalSieve = Arrays.copyOf(sieve, sieve.length);
+        float[] sieve = QS.getSieveArray(n, (int) Math.round(Math.pow(factorBase.size(), 2)));
+        float[] originalSieve = Arrays.copyOf(sieve, sieve.length);
         ArrayList<Integer> smoothIndices = QS.performSieving(sieve, factorBase, n);
-        int[][] expMatrix = QS.getExpMatrix(factorBase, smoothIndices, originalSieve);
-        ArrayList<Integer> indices = QS.processMatrix(expMatrix, factorBase.size());
+        System.out.println(smoothIndices);
+        //int[][] expMatrix = QS.getExpMatrix(factorBase, smoothIndices, originalSieve);
+        //ArrayList<Integer> indices = QS.processMatrix(expMatrix, factorBase.size());
 
 
 //        ArrayList<BigInteger> pollardFactors = PrimeUtils.pollardRho(longPersonnummer);

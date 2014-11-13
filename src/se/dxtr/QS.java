@@ -126,20 +126,20 @@ public class QS {
         return ret;
     }
 
-    public static BigInteger[] getSieveArray (BigInteger n, int size){
+    public static float[] getSieveArray (BigInteger n, int size){
         if(size < 100)
             size = 100;
         double tmpFirstX = Math.sqrt(n.doubleValue());
         BigInteger firstX = new BigDecimal(tmpFirstX).toBigInteger();
         firstX = BigInteger.valueOf(1);
-        BigInteger[] sieveArray = new BigInteger[size];
+        float[] sieveArray = new float[size];
         for (int x = 0; x < size; x++) {
-            sieveArray[x] = Q(firstX.add(BigInteger.valueOf(x)), n);
+            sieveArray[x] = (float) Math.log(Q(firstX.add(BigInteger.valueOf(x)), n).doubleValue());
         }
         return sieveArray;
     }
 
-    public static ArrayList<Integer> performSieving(BigInteger[] sieveArray, ArrayList<Integer> factorBase, BigInteger n) {
+    public static ArrayList<Integer> performSieving(float[] sieveArray, ArrayList<Integer> factorBase, BigInteger n) {
         ArrayList<Integer> smoothIndices = new ArrayList<Integer>();
         for (Integer prime : factorBase) {
             double[] roots = tonelliShanks(n, prime);
@@ -153,13 +153,15 @@ public class QS {
         return smoothIndices;
     }
 
-    public static void sieveDivision(BigInteger[] sieveArray, Integer prime, int x, ArrayList<Integer> smoothIndices) {
+    public static void sieveDivision(float[] sieveArray, Integer prime, int x, ArrayList<Integer> smoothIndices) {
         while (x < sieveArray.length) {
-            sieveArray[x] = sieveArray[x].divide(BigInteger.valueOf(prime));
+            sieveArray[x] -= Math.log(prime);
+            /*
             while(sieveArray[x].mod(BigInteger.valueOf(prime)).equals(BigInteger.ZERO)){
                 sieveArray[x] = sieveArray[x].divide(BigInteger.valueOf(prime));
             }
-            if (sieveArray[x].equals(BigInteger.ONE)) {
+            */
+            if (Math.round(sieveArray[x]) == 0) {
                 smoothIndices.add(x);
             }
             x += prime;
@@ -174,7 +176,7 @@ public class QS {
             int smoothIndex = smoothIndices.get(i);
             ArrayList<BigInteger> factors = PrimeUtils.pollardRho(originalSieve[smoothIndex]);
             for (BigInteger factor : factors) {
-                expMatrix[i][factorBase.indexOf(factor.intValue())]++;
+                expMatrix[i][factorBase.indexOf(factor.intValue())] ^= 1;
             }
         }
 
