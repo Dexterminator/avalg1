@@ -64,11 +64,12 @@ public class PrimeUtils {
                     // In this case, the resulting number is a factor
                     factors.add(n);
                     break;
+                } else {
+//                    System.out.println(n);
                 }
                 possiblePrime = helpPollardRho(n);
             } else {
                 possiblePrime = helpPollardRho(possiblePrime);
-                System.out.println("NOT PRIME: " + possiblePrime);
             }
         }
 

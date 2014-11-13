@@ -20,24 +20,19 @@ public class Main {
         ArrayList<Integer> factorBase = QS.factorBase(n, QS.getB(n));
         BigInteger[] sieve = QS.getSieveArray(n, 100);
         BigInteger[] originalSieve = Arrays.copyOf(sieve, sieve.length);
-        int[][] yFactors = new int[sieve.length][factorBase.size()];
-        ArrayList<Integer> smoothIndices = QS.performSieving(sieve, factorBase, n, yFactors);
+        ArrayList<Integer> smoothIndices = QS.performSieving(sieve, factorBase, n);
+        for (Integer i : smoothIndices) {
+            ArrayList<BigInteger> factors = PrimeUtils.pollardRho(originalSieve[i]);
+            int[] expVector = new int[factorBase.size()];
+            for (BigInteger factor : factors) {
+                expVector[factorBase.indexOf(factor)]++;
+            }
+            System.out.println(Arrays.toString(expVector));
+        }
 
 //        for (BigInteger bigInteger : sieve) {
 //            System.out.println(bigInteger.toString());
 //        }
-
-        System.out.println("Indices of smooth y values: " + smoothIndices);
-        for (Integer smoothIndex : smoothIndices) {
-            System.out.println("Smooth number: " + originalSieve[smoothIndex]);
-            System.out.println(Arrays.toString(yFactors[smoothIndex]));
-            for (int i = 0; i < yFactors[smoothIndex].length; i++) {
-                for (int primeCount = 0; primeCount < yFactors[smoothIndex][i]; primeCount++) {
-                    System.out.println(factorBase.get(i));
-                }
-            }
-            System.out.println();
-        }
         ArrayList<BigInteger> pollardFactors = PrimeUtils.pollardRho(longPersonnummer);
         System.out.println("Pollar factors of: " + longPersonnummer);
         System.out.println(pollardFactors.toString());

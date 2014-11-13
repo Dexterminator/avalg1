@@ -1,6 +1,5 @@
 package se.dxtr;
 
-import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -130,28 +129,25 @@ public class QS {
         return sieveArray;
     }
 
-    public static ArrayList<Integer> performSieving(BigInteger[] sieveArray, ArrayList<Integer> factorBase, BigInteger n,
-                                                       int[][] yFactors) {
-        int primeIndex = 0;
+    public static ArrayList<Integer> performSieving(BigInteger[] sieveArray, ArrayList<Integer> factorBase, BigInteger n) {
         ArrayList<Integer> smoothIndices = new ArrayList<Integer>();
         for (Integer prime : factorBase) {
             double[] roots = tonelliShanks(n, prime);
             for (double root : roots) {
-                double x = root - Math.ceil(Math.sqrt(n.doubleValue())) % prime;
-                sieveDivision(sieveArray, prime, (int) x, yFactors, primeIndex, smoothIndices);
+                double x = (root - Math.ceil(Math.sqrt(n.doubleValue()))) % prime;
+                if (x < 0)
+                    x += prime;
+                sieveDivision(sieveArray, prime, (int) x, smoothIndices);
             }
-            primeIndex++;
         }
         return smoothIndices;
     }
 
-    public static void sieveDivision(BigInteger[] sieveArray, Integer prime, int x, int[][] yFactors, int primeIndex,
-                                     ArrayList<Integer> smootIndices) {
+    public static void sieveDivision(BigInteger[] sieveArray, Integer prime, int x, ArrayList<Integer> smoothIndices) {
         while (x < sieveArray.length) {
             sieveArray[x] = sieveArray[x].divide(BigInteger.valueOf(prime));
-            yFactors[x][primeIndex]++;
             if (sieveArray[x].equals(BigInteger.ONE)) {
-                smootIndices.add(x);
+                smoothIndices.add(x);
             }
             x += prime;
         }
