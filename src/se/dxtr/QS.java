@@ -16,7 +16,6 @@ public class QS {
         double c = 3;
         double tempN = Math.log(n.doubleValue());
         double b = c*Math.exp(0.5 * Math.sqrt(tempN * Math.log(tempN)));
-        System.out.println(b);
         return (int) b;
     }
 
@@ -161,6 +160,11 @@ public class QS {
                 sieveArray[x] = sieveArray[x].divide(BigInteger.valueOf(prime));
             }
             */
+            /*
+            while(BigInteger.valueOf((long) Math.round(Math.exp(sieveArray[x]))).mod(BigInteger.valueOf(prime)).equals(BigInteger.ZERO)){
+                sieveArray[x] -= Math.log(prime);
+            }
+            */
             if (Math.round(sieveArray[x]) == 0) {
                 smoothIndices.add(x);
             }
@@ -173,7 +177,10 @@ public class QS {
         int[][] expMatrix = new int[smoothIndices.size()][factorBase.size() + smoothIndices.size()];
         for (int i = 0; i < smoothIndices.size(); i++) {
             int smoothIndex = smoothIndices.get(i);
-            ArrayList<BigInteger> factors = PrimeUtils.pollardRho(BigInteger.valueOf((long)originalSieve[smoothIndex]));
+            ArrayList<BigInteger> factors = PrimeUtils.pollardRho(BigInteger.valueOf(Math.round(Math.exp(originalSieve[smoothIndex]))));
+            System.out.println(Math.exp(originalSieve[smoothIndex]));
+            System.out.println(factors);
+            System.out.println(factorBase);
             for (BigInteger factor : factors) {
                 expMatrix[i][factorBase.indexOf(factor.intValue())] ^= 1;
             }
@@ -270,16 +277,21 @@ public class QS {
      */
     private static BigInteger getFactor(ArrayList<Integer> subsetIndices, ArrayList<Integer> smoothIndices,
                                        float[] originalSieve, BigInteger n) {
-        int root = (int) Math.ceil(Math.sqrt(n.doubleValue()));
-        double x = Math.pow(smoothIndices.get(subsetIndices.get(0)) + root, 2);
-        BigInteger y = BigInteger.valueOf((long) originalSieve[smoothIndices.get(subsetIndices.get(0))]);
+        //int root = (int) Math.ceil(Math.sqrt(n.doubleValue()));
+        BigInteger root = BigIntegerMath.sqrt(n, RoundingMode.HALF_UP);
+        BigInteger temp = BigInteger.valueOf(smoothIndices.get(subsetIndices.get(0))).add(root);
+        BigInteger x = temp.multiply(temp);
+        //double x = Math.pow(smoothIndices.get(subsetIndices.get(0)) + root, 2);
+        BigInteger y = BigInteger.valueOf((long) Math.round(Math.exp(originalSieve[smoothIndices.get(subsetIndices.get(0))])));
         for (int i = 1; i < subsetIndices.size(); i++) {
-            x = x * Math.pow(smoothIndices.get(subsetIndices.get(i)) + root, 2);
-            y = y.multiply(BigInteger.valueOf((long) originalSieve[smoothIndices.get(subsetIndices.get(i))]));
+            BigInteger temp2 = BigInteger.valueOf(smoothIndices.get(subsetIndices.get(i))).add(root);
+            temp2 = temp2.multiply(temp2);
+            x = x.multiply(temp2);
+            y = y.multiply(BigInteger.valueOf((long) Math.round(Math.exp(originalSieve[smoothIndices.get(subsetIndices.get(i))]))));
         }
         // x congruent with y (mod n) at this point, sqrt to get the values to calculate gcd
-        BigInteger a = BigInteger.valueOf(Math.round(Math.sqrt(x)));
-        BigInteger b = BigInteger.valueOf(Math.round(Math.sqrt(y.doubleValue())));
+        BigInteger a = BigIntegerMath.sqrt(x, RoundingMode.HALF_UP);
+        BigInteger b = BigIntegerMath.sqrt(y, RoundingMode.HALF_UP);
 
         BigInteger factor = PrimeUtils.gcd(a.subtract(b), n);
         return factor;
