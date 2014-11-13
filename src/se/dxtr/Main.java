@@ -22,11 +22,7 @@ public class Main {
         BigInteger[] originalSieve = Arrays.copyOf(sieve, sieve.length);
         ArrayList<Integer> smoothIndices = QS.performSieving(sieve, factorBase, n);
         int[][] expMatrix = QS.getExpMatrix(factorBase, smoothIndices, originalSieve);
-        for (int[] ints : expMatrix) {
-            System.out.println(Arrays.toString(ints));
-        }
-
-
+        ArrayList<Integer> indices = QS.processMatrix(expMatrix, factorBase.size());
 
 
 //        ArrayList<BigInteger> pollardFactors = PrimeUtils.pollardRho(longPersonnummer);
