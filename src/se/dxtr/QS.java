@@ -15,7 +15,7 @@ public class QS {
     public static int getB(BigInteger n) {
         double c = 3;
         double tempN = Math.log(n.doubleValue());
-        double b = c*Math.exp(0.5*Math.sqrt(tempN*Math.log(tempN)));
+        double b = c*Math.exp(0.5 * Math.sqrt(tempN * Math.log(tempN)));
         System.out.println(b);
         return (int) b;
     }
@@ -169,11 +169,11 @@ public class QS {
     }
 
     public static int[][] getExpMatrix(ArrayList<Integer> factorBase, ArrayList<Integer> smoothIndices,
-                                       BigInteger[] originalSieve) {
+                                       float[] originalSieve) {
         int[][] expMatrix = new int[smoothIndices.size()][factorBase.size() + smoothIndices.size()];
         for (int i = 0; i < smoothIndices.size(); i++) {
             int smoothIndex = smoothIndices.get(i);
-            ArrayList<BigInteger> factors = PrimeUtils.pollardRho(originalSieve[smoothIndex]);
+            ArrayList<BigInteger> factors = PrimeUtils.pollardRho(BigInteger.valueOf((long)originalSieve[smoothIndex]));
             for (BigInteger factor : factors) {
                 expMatrix[i][factorBase.indexOf(factor.intValue())] ^= 1;
             }
@@ -254,7 +254,7 @@ public class QS {
     }
 
     public static BigInteger getNonTrivialFactor(ArrayList<Integer>[] subsets, ArrayList<Integer> smoothIndices,
-                                                 BigInteger[] originalSieve, BigInteger n) {
+                                                 float[] originalSieve, BigInteger n) {
         for (ArrayList<Integer> subset : subsets) {
             BigInteger factor = getFactor(subset, smoothIndices, originalSieve, n);
             if (!factor.equals(BigInteger.ONE) && !factor.equals(n))
@@ -265,15 +265,17 @@ public class QS {
 
     /**
      * Here be dragons
+     *
+     * This code may summon Cthulhu if used improperly
      */
     private static BigInteger getFactor(ArrayList<Integer> subsetIndices, ArrayList<Integer> smoothIndices,
-                                       BigInteger[] originalSieve, BigInteger n) {
+                                       float[] originalSieve, BigInteger n) {
         int root = (int) Math.ceil(Math.sqrt(n.doubleValue()));
         double x = Math.pow(smoothIndices.get(subsetIndices.get(0)) + root, 2);
-        BigInteger y = originalSieve[smoothIndices.get(subsetIndices.get(0))];
+        BigInteger y = BigInteger.valueOf((long) originalSieve[smoothIndices.get(subsetIndices.get(0))]);
         for (int i = 1; i < subsetIndices.size(); i++) {
             x = x * Math.pow(smoothIndices.get(subsetIndices.get(i)) + root, 2);
-            y = y.multiply(originalSieve[smoothIndices.get(subsetIndices.get(i))]);
+            y = y.multiply(BigInteger.valueOf((long) originalSieve[smoothIndices.get(subsetIndices.get(i))]));
         }
         // x congruent with y (mod n) at this point, sqrt to get the values to calculate gcd
         BigInteger a = BigInteger.valueOf(Math.round(Math.sqrt(x)));
