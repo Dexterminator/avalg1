@@ -21,7 +21,7 @@ public class QS {
     }
 
     public static BigInteger Q(BigInteger x, BigInteger n) {
-        BigInteger parenthesis = BigIntegerMath.sqrt(n, RoundingMode.CEILING).add(x);
+        BigInteger parenthesis = BigIntegerMath.sqrt(n, RoundingMode.FLOOR).add(x);
         BigInteger q = parenthesis.multiply(parenthesis).subtract(n);
         return q;
         //double parenthesis = Math.floor(Math.sqrt(n.doubleValue())) + x.doubleValue();
@@ -146,7 +146,8 @@ public class QS {
         for (Integer prime : factorBase) {
             double[] roots = tonelliShanks(n, prime);
             for (double root : roots) {
-                double x = (root - Math.ceil(Math.sqrt(n.doubleValue()))) % prime;
+                double x = (BigInteger.valueOf((long )root).subtract(BigIntegerMath.sqrt(n, RoundingMode.CEILING)).mod(BigInteger.valueOf(prime))).doubleValue();
+                //double x = (root - Math.ceil(Math.sqrt(n.doubleValue()))) % prime;
                 if (x < 0)
                     x += prime;
                 sieveDivision(sieveArray, prime, (int) x, smoothIndices, n);
@@ -302,8 +303,8 @@ public class QS {
             //y = y.multiply(BigInteger.valueOf((long) Math.round(Math.exp(originalSieve[smoothIndices.get(subsetIndices.get(i))]))));
         }
         // x congruent with y (mod n) at this point, sqrt to get the values to calculate gcd
-        BigInteger a = BigIntegerMath.sqrt(x, RoundingMode.CEILING);
-        BigInteger b = BigIntegerMath.sqrt(y, RoundingMode.CEILING);
+        BigInteger a = BigIntegerMath.sqrt(x, RoundingMode.HALF_UP);
+        BigInteger b = BigIntegerMath.sqrt(y, RoundingMode.HALF_UP);
 
         BigInteger factor = PrimeUtils.gcd(a.subtract(b), n);
         return factor;
