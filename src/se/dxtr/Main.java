@@ -15,8 +15,9 @@ public class Main {
         BigInteger personnummer = new BigInteger("9112232872");
         //BigInteger longPersonnummer = new BigInteger("9112232872000000000000000000000000000000000000000000000000000000000001");
         BigInteger longPersonnummer = new BigInteger("91122328720000000000000000000000000001");
+
         BigInteger n = BigInteger.valueOf(15347);
-        //n = longPersonnummer;
+        n = longPersonnummer;
         System.out.println("N: " + n + "\n");
 
         ArrayList<Integer> factorBase = QS.factorBase(n, QS.getB(n));
@@ -26,10 +27,12 @@ public class Main {
         int[][] expMatrix = QS.getExpMatrix(factorBase, smoothIndices, originalSieve, n);
         ArrayList<Integer>[] subsets = QS.processMatrix(expMatrix, factorBase.size());
         BigInteger factor = QS.getNonTrivialFactor(subsets, smoothIndices, originalSieve, n);
-        // factor may be null here if we fucked up
         if (factor != null) {
             System.out.println(factor);
         }
+
+        // factor may be null here if we fucked up
+
 //        for (Integer index : indices) {
 //            int x = index + root;
 //            BigInteger y = originalSieve[smoothIndices.get(index)];

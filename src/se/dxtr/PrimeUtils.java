@@ -1,5 +1,8 @@
 package se.dxtr;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -188,6 +191,29 @@ public class PrimeUtils {
             temp = temp.mod(n);
         }
         return temp.mod(n);
+    }
+
+    /**
+     * A quick trial division algorithm
+     * @param a
+     * @return
+     */
+    public static ArrayList<BigInteger> trialDivision(BigInteger a){
+        ArrayList<BigInteger> retList = new ArrayList<BigInteger>();
+        FileInputStream file = null;
+        try {
+            file = new FileInputStream("src/se/dxtr/primes1.txt");
+            Kattio io = new Kattio(file);
+            while(io.hasMoreTokens()){
+                BigInteger temp = BigInteger.valueOf(io.getInt());
+                if(a.mod(temp).equals(BigInteger.ZERO))
+                    retList.add(temp);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return retList;
     }
 
 
