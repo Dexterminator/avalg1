@@ -14,6 +14,7 @@ import java.util.Arrays;
  * Created by dexter on 11/11/14.
  */
 public class QS {
+    private static BigInteger nRoot;
     public static int getB(BigInteger n) {
         double c = 3;
         double tempN = Math.log(n.doubleValue());
@@ -22,7 +23,7 @@ public class QS {
     }
 
     public static BigInteger Q(BigInteger x, BigInteger n) {
-        BigInteger parenthesis = BigIntegerMath.sqrt(n, RoundingMode.FLOOR).add(x);
+        BigInteger parenthesis = nRoot.add(x);
         BigInteger q = parenthesis.multiply(parenthesis).subtract(n);
         return q;
         //double parenthesis = Math.floor(Math.sqrt(n.doubleValue())) + x.doubleValue();
@@ -133,8 +134,9 @@ public class QS {
         //TODO: CHECK IF THIS NEEDS TO BE ROUNDED
         double tmpFirstX = Math.ceil(Math.sqrt(n.doubleValue())) + firstVal;
         BigInteger firstX = new BigDecimal(tmpFirstX).toBigInteger();
-        firstX = BigInteger.valueOf(1);
+        firstX = BigInteger.valueOf(0);
         float[] sieveArray = new float[size];
+        nRoot = BigIntegerMath.sqrt(n, RoundingMode.FLOOR);
         for (int x = 0; x < size; x++) {
             sieveArray[x] = (float) Math.log(Q(firstX.add(BigInteger.valueOf(x)), n).doubleValue());
         }
@@ -157,13 +159,20 @@ public class QS {
             }
         }
         */
+        boolean first = true;
+        int lastIndexPlusOne;
         while(factorBase.size() > smoothIndices.size()){
-            int lastIndexPlusOne = sieveArray.length;
+            if(first) {
+                lastIndexPlusOne = 0;
+                first = !first;
+            } else {
+                lastIndexPlusOne = sieveArray.length;
+            }
             sieveArray = getSieveArray(n, lastIndexPlusOne, (int) Math.pow(factorBase.size(), 2));
             for (Integer prime : factorBase) {
                 double[] roots = tonelliShanks(n, prime);
                 for (double root : roots) {
-                    double x = (BigInteger.valueOf((long )root).subtract(BigIntegerMath.sqrt(n, RoundingMode.CEILING)).mod(BigInteger.valueOf(prime))).doubleValue();
+                    double x = (BigInteger.valueOf((long )root).subtract(nRoot).mod(BigInteger.valueOf(prime))).doubleValue();
                     //double x = (root - Math.ceil(Math.sqrt(n.doubleValue()))) % prime;
                     if (x < 0)
                         x += prime;
@@ -171,6 +180,7 @@ public class QS {
                 }
             }
         }
+        System.out.println(smoothIndices);
         return smoothIndices;
     }
 
@@ -184,12 +194,13 @@ public class QS {
             }
             */
             //TODO: use x to calculate Q(x) again, check the mod. Done?
-            BigInteger temp = Q(BigInteger.valueOf(x).add(BigInteger.ONE), n);
+            BigInteger temp = Q(BigInteger.valueOf(x), n);
             while(temp.mod(BigInteger.valueOf(prime)).equals(BigInteger.ZERO)){
                 sieveArray[x] -= Math.log(prime);
                 temp = temp.divide(BigInteger.valueOf(prime));
             }
-            if (Math.round(sieveArray[x]) == 0) {
+            if (sieveArray[x] < 0.1) {
+                System.out.println(sieveArray[x]);
                 smoothIndices.add(x);
             } else {
                 //System.out.println(sieveArray[x]);
@@ -198,20 +209,18 @@ public class QS {
         }
     }
 
-    public static int[][] getExpMatrix(ArrayList<Integer> factorBase, ArrayList<Integer> smoothIndices,
-                                       float[] originalSieve, BigInteger n) {
+    public static int[][] getExpMatrix(ArrayList<Integer> factorBase, ArrayList<Integer> smoothIndices, BigInteger n) {
         int[][] expMatrix = new int[smoothIndices.size()][factorBase.size() + smoothIndices.size()];
         for (int i = 0; i < smoothIndices.size(); i++) {
             int smoothIndex = smoothIndices.get(i);
             // TODO: Use smoothIndex to calculate Q(x) again, as well as probably use Trial Division instead. Done?
-            ArrayList<BigInteger> factors = PrimeUtils.trialDivision(Q(BigInteger.valueOf(smoothIndex).add(BigInteger.ONE), n));
+            ArrayList<BigInteger> factors = PrimeUtils.trialDivision(Q(BigInteger.valueOf(smoothIndex), n));
             //ArrayList<BigInteger> factors = PrimeUtils.pollardRho(BigInteger.valueOf(Math.round(Math.exp(originalSieve[smoothIndex]))));
             //System.out.println(Math.exp(originalSieve[smoothIndex]));
             //System.out.println(factors);
             //System.out.println(factorBase);
             for (BigInteger factor : factors) {
-                expMatrix[i][factorBase.indexOf(factor.intValue())]++;
-                expMatrix[i][factorBase.indexOf(factor.intValue())] %= 2;
+                expMatrix[i][factorBase.indexOf(factor.intValue())] ^= 1;
             }
         }
 
@@ -225,6 +234,7 @@ public class QS {
     }
 
     public static ArrayList<Integer>[] processMatrix(int[][] matrix, int baseSize) {
+        printMatrix(matrix);
         // Perform gaussian elimination
         for (int col = 0; col < baseSize; col++) {
             gaussForColumn(matrix, col);
@@ -249,7 +259,13 @@ public class QS {
             }
             subsets[i] = indices;
         }
+
         System.out.println(zeroRows);
+        /*
+        for(ArrayList<Integer> array: subsets){
+            System.out.println(array);
+        }
+        */
         return subsets;
     }
 
@@ -289,10 +305,9 @@ public class QS {
         }
     }
 
-    public static BigInteger getNonTrivialFactor(ArrayList<Integer>[] subsets, ArrayList<Integer> smoothIndices,
-                                                 float[] originalSieve, BigInteger n) {
+    public static BigInteger getNonTrivialFactor(ArrayList<Integer>[] subsets, ArrayList<Integer> smoothIndices, BigInteger n) {
         for (ArrayList<Integer> subset : subsets) {
-            BigInteger factor = getFactor(subset, smoothIndices, originalSieve, n);
+            BigInteger factor = getFactor(subset, smoothIndices, n);
             if (!factor.equals(BigInteger.ONE) && !factor.equals(n))
                 return factor;
         }
@@ -305,25 +320,26 @@ public class QS {
      * This code may summon Cthulhu if used improperly
      * TODO: Remove unnecessary Math.exp, use smoothIndicies instead.
      */
-    private static BigInteger getFactor(ArrayList<Integer> subsetIndices, ArrayList<Integer> smoothIndices,
-                                        float[] originalSieve, BigInteger n) {
+    private static BigInteger getFactor(ArrayList<Integer> subsetIndices, ArrayList<Integer> smoothIndices, BigInteger n) {
         //int root = (int) Math.ceil(Math.sqrt(n.doubleValue()));
-        BigInteger root = BigIntegerMath.sqrt(n, RoundingMode.CEILING);
-        BigInteger temp = BigInteger.valueOf(smoothIndices.get(subsetIndices.get(0))).add(root);
+        BigInteger temp = BigInteger.valueOf(smoothIndices.get(subsetIndices.get(0))).add(nRoot);
         BigInteger x = temp.multiply(temp);
         //double x = Math.pow(smoothIndices.get(subsetIndices.get(0)) + root, 2);
-        BigInteger y = Q(BigInteger.valueOf(smoothIndices.get(subsetIndices.get(0))).add(BigInteger.ONE), n);
+        BigInteger y = Q(BigInteger.valueOf(smoothIndices.get(subsetIndices.get(0))), n);
         //BigInteger y = BigInteger.valueOf((long) Math.round(Math.exp(originalSieve[smoothIndices.get(subsetIndices.get(0))])));
         for (int i = 1; i < subsetIndices.size(); i++) {
-            BigInteger temp2 = BigInteger.valueOf(smoothIndices.get(subsetIndices.get(i))).add(root);
+            BigInteger temp2 = BigInteger.valueOf(smoothIndices.get(subsetIndices.get(i))).add(nRoot);
             temp2 = temp2.multiply(temp2);
             x = x.multiply(temp2);
-            y = y.multiply(Q(BigInteger.valueOf(smoothIndices.get(subsetIndices.get(i))).add(BigInteger.ONE), n));
+            y = y.multiply(Q(BigInteger.valueOf(smoothIndices.get(subsetIndices.get(i))), n));
             //y = y.multiply(BigInteger.valueOf((long) Math.round(Math.exp(originalSieve[smoothIndices.get(subsetIndices.get(i))]))));
         }
         // x congruent with y (mod n) at this point, sqrt to get the values to calculate gcd
-        BigInteger a = BigIntegerMath.sqrt(x, RoundingMode.HALF_UP);
-        BigInteger b = BigIntegerMath.sqrt(y, RoundingMode.HALF_UP);
+
+        BigInteger a = BigIntegerMath.sqrt(x, RoundingMode.UNNECESSARY).mod(n);
+        BigInteger b = BigIntegerMath.sqrt(y, RoundingMode.UNNECESSARY).mod(n);
+        System.out.println(a);
+        System.out.println(b);
 
         BigInteger factor = PrimeUtils.gcd(a.subtract(b), n);
         return factor;
