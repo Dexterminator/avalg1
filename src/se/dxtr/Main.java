@@ -23,7 +23,7 @@ public class Main {
         float[] sieve = QS.getSieveArray(n, (int) Math.round(Math.pow(factorBase.size(), 2)));
         float[] originalSieve = Arrays.copyOf(sieve, sieve.length);
         ArrayList<Integer> smoothIndices = QS.performSieving(sieve, factorBase, n);
-        int[][] expMatrix = QS.getExpMatrix(factorBase, smoothIndices, originalSieve);
+        int[][] expMatrix = QS.getExpMatrix(factorBase, smoothIndices, originalSieve, n);
         ArrayList<Integer>[] subsets = QS.processMatrix(expMatrix, factorBase.size());
         BigInteger factor = QS.getNonTrivialFactor(subsets, smoothIndices, originalSieve, n);
         // factor may be null here if we fucked up
