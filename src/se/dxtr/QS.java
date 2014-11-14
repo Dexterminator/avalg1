@@ -127,10 +127,11 @@ public class QS {
         return ret;
     }
 
-    public static float[] getSieveArray (BigInteger n, int size){
+    public static float[] getSieveArray (BigInteger n, int firstVal, int size){
         if(size < 100)
             size = 100;
-        double tmpFirstX = Math.sqrt(n.doubleValue());
+        //TODO: CHECK IF THIS NEEDS TO BE ROUNDED
+        double tmpFirstX = Math.ceil(Math.sqrt(n.doubleValue())) + firstVal;
         BigInteger firstX = new BigDecimal(tmpFirstX).toBigInteger();
         firstX = BigInteger.valueOf(1);
         float[] sieveArray = new float[size];
@@ -143,6 +144,7 @@ public class QS {
     public static ArrayList<Integer> performSieving(float[] sieveArray, ArrayList<Integer> factorBase, BigInteger n) {
         ArrayList<Integer> smoothIndices = new ArrayList<Integer>();
         //System.out.println(sieveArray.length);
+        /*
         //System.out.println(Arrays.toString(sieveArray));
         for (Integer prime : factorBase) {
             double[] roots = tonelliShanks(n, prime);
@@ -152,6 +154,21 @@ public class QS {
                 if (x < 0)
                     x += prime;
                 sieveDivision(sieveArray, prime, (int) x, smoothIndices, n);
+            }
+        }
+        */
+        while(factorBase.size() > smoothIndices.size()){
+            int lastIndexPlusOne = sieveArray.length;
+            sieveArray = getSieveArray(n, lastIndexPlusOne, (int) Math.pow(factorBase.size(), 2));
+            for (Integer prime : factorBase) {
+                double[] roots = tonelliShanks(n, prime);
+                for (double root : roots) {
+                    double x = (BigInteger.valueOf((long )root).subtract(BigIntegerMath.sqrt(n, RoundingMode.CEILING)).mod(BigInteger.valueOf(prime))).doubleValue();
+                    //double x = (root - Math.ceil(Math.sqrt(n.doubleValue()))) % prime;
+                    if (x < 0)
+                        x += prime;
+                    sieveDivision(sieveArray, prime, (int) x, smoothIndices, n);
+                }
             }
         }
         return smoothIndices;
@@ -193,7 +210,8 @@ public class QS {
             //System.out.println(factors);
             //System.out.println(factorBase);
             for (BigInteger factor : factors) {
-                expMatrix[i][factorBase.indexOf(factor.intValue())] ^= 1;
+                expMatrix[i][factorBase.indexOf(factor.intValue())]++;
+                expMatrix[i][factorBase.indexOf(factor.intValue())] %= 2;
             }
         }
 
@@ -211,7 +229,7 @@ public class QS {
         for (int col = 0; col < baseSize; col++) {
             gaussForColumn(matrix, col);
         }
-        printMatrix(matrix);
+        //printMatrix(matrix);
 
         // Find all zero rows
         ArrayList<Integer> zeroRows = new ArrayList<Integer>();
@@ -288,7 +306,7 @@ public class QS {
      * TODO: Remove unnecessary Math.exp, use smoothIndicies instead.
      */
     private static BigInteger getFactor(ArrayList<Integer> subsetIndices, ArrayList<Integer> smoothIndices,
-                                       float[] originalSieve, BigInteger n) {
+                                        float[] originalSieve, BigInteger n) {
         //int root = (int) Math.ceil(Math.sqrt(n.doubleValue()));
         BigInteger root = BigIntegerMath.sqrt(n, RoundingMode.CEILING);
         BigInteger temp = BigInteger.valueOf(smoothIndices.get(subsetIndices.get(0))).add(root);
@@ -304,8 +322,8 @@ public class QS {
             //y = y.multiply(BigInteger.valueOf((long) Math.round(Math.exp(originalSieve[smoothIndices.get(subsetIndices.get(i))]))));
         }
         // x congruent with y (mod n) at this point, sqrt to get the values to calculate gcd
-        BigInteger a = BigIntegerMath.sqrt(x, RoundingMode.UNNECESSARY);
-        BigInteger b = BigIntegerMath.sqrt(y, RoundingMode.UNNECESSARY);
+        BigInteger a = BigIntegerMath.sqrt(x, RoundingMode.HALF_UP);
+        BigInteger b = BigIntegerMath.sqrt(y, RoundingMode.HALF_UP);
 
         BigInteger factor = PrimeUtils.gcd(a.subtract(b), n);
         return factor;

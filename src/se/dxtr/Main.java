@@ -21,7 +21,7 @@ public class Main {
         System.out.println("N: " + n + "\n");
 
         ArrayList<Integer> factorBase = QS.factorBase(n, QS.getB(n));
-        float[] sieve = QS.getSieveArray(n, (int) Math.round(Math.pow(factorBase.size(), 2)));
+        float[] sieve = QS.getSieveArray(n, 0, (int) Math.round(Math.pow(factorBase.size(), 2)));
         float[] originalSieve = Arrays.copyOf(sieve, sieve.length);
         ArrayList<Integer> smoothIndices = QS.performSieving(sieve, factorBase, n);
         int[][] expMatrix = QS.getExpMatrix(factorBase, smoothIndices, originalSieve, n);
