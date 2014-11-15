@@ -51,6 +51,7 @@ public class QS {
     }
 
     public static ArrayList<Integer> factorBase(BigInteger n, int b) {
+        nRoot = BigIntegerMath.sqrt(n, RoundingMode.CEILING);
         ArrayList<Integer> factorBase = new ArrayList<Integer>();
         factorBase.add(2);
         for (int i = 2; i < b; i++) {
@@ -129,16 +130,14 @@ public class QS {
     }
 
     public static float[] getSieveArray (BigInteger n, int firstVal, int size){
-        if(size < 100)
-            size = 100;
         //TODO: CHECK IF THIS NEEDS TO BE ROUNDED
         double tmpFirstX = Math.ceil(Math.sqrt(n.doubleValue())) + firstVal;
         BigInteger firstX = new BigDecimal(tmpFirstX).toBigInteger();
-        firstX = BigInteger.valueOf(0);
+        //System.out.println(firstVal);
+        firstX = BigInteger.valueOf(firstVal);
         float[] sieveArray = new float[size];
-        nRoot = BigIntegerMath.sqrt(n, RoundingMode.FLOOR);
         for (int x = 0; x < size; x++) {
-            sieveArray[x] = (float) Math.log(Q(firstX.add(BigInteger.valueOf(x)), n).doubleValue());
+            sieveArray[x] = (float) Math.log(Math.abs(Q(firstX.add(BigInteger.valueOf(x)), n).doubleValue()));
         }
         return sieveArray;
     }
@@ -160,31 +159,47 @@ public class QS {
         }
         */
         boolean first = true;
-        int lastIndexPlusOne;
-        while(factorBase.size()+1 > smoothIndices.size()){
+        int time = 1;
+        int offset;
+        while(factorBase.size() + 20 > smoothIndices.size()){
             if(first) {
-                lastIndexPlusOne = 0;
+                offset = 0;
                 first = !first;
             } else {
-                lastIndexPlusOne = sieveArray.length;
+                offset = sieveArray.length*time;
+                time++;
             }
-            sieveArray = getSieveArray(n, lastIndexPlusOne, (int) Math.pow(factorBase.size(), 2));
+            sieveArray = getSieveArray(n, offset, (int) Math.pow(factorBase.size(), 2));
+            //System.out.println(Arrays.toString(sieveArray));
             for (Integer prime : factorBase) {
                 double[] roots = tonelliShanks(n, prime);
                 for (double root : roots) {
-                    double x = (BigInteger.valueOf((long )root).subtract(nRoot).mod(BigInteger.valueOf(prime))).doubleValue();
-                    //double x = (root - Math.ceil(Math.sqrt(n.doubleValue()))) % prime;
-                    if (x < 0)
-                        x += prime;
-                    sieveDivision(sieveArray, prime, (int) x, smoothIndices, n);
+                    double x;
+                    if(first){
+                        x = (BigInteger.valueOf((long) root).subtract(nRoot).mod(BigInteger.valueOf(prime))).doubleValue();
+                        //double x = (root - Math.ceil(Math.sqrt(n.doubleValue()))) % prime;
+                        while(x<0)
+                            x += prime;
+                    } else {
+                        root = prime-root-offset % prime;
+                        x = (BigInteger.valueOf((long) root).subtract(nRoot).mod(BigInteger.valueOf(prime))).doubleValue();
+                        //double x = (root - Math.ceil(Math.sqrt(n.doubleValue()))) % prime;
+                        while(x<0)
+                            x += prime;
+
+                    }
+                    sieveDivision(sieveArray, prime, (int) x, offset, smoothIndices, n);
                 }
             }
+            //System.out.println(factorBase.size());
+            //System.out.println(smoothIndices.size());
         }
         System.out.println(smoothIndices);
         return smoothIndices;
     }
 
-    public static void sieveDivision(float[] sieveArray, Integer prime, int x, ArrayList<Integer> smoothIndices, BigInteger n) {
+    public static void sieveDivision(float[] sieveArray, Integer prime, int x, int offset, ArrayList<Integer> smoothIndices, BigInteger n) {
+        //System.out.println(Arrays.toString(sieveArray));
         //System.out.println(Arrays.toString(sieveArray));
         while (x < sieveArray.length) {
             //sieveArray[x] -= Math.log(prime);
@@ -194,14 +209,17 @@ public class QS {
             }
             */
             //TODO: use x to calculate Q(x) again, check the mod. Done?
-            BigInteger temp = Q(BigInteger.valueOf(x), n);
+            BigInteger temp = Q(BigInteger.valueOf(x+offset), n);
             while(temp.mod(BigInteger.valueOf(prime)).equals(BigInteger.ZERO)){
                 sieveArray[x] -= Math.log(prime);
                 temp = temp.divide(BigInteger.valueOf(prime));
             }
             if (sieveArray[x] < 0.1) {
-                System.out.println(sieveArray[x]);
-                smoothIndices.add(x);
+                //System.out.println(sieveArray[x]);
+                if(!smoothIndices.contains(x + offset)) {
+                    smoothIndices.add(x + offset);
+                    //System.out.println(x+offset);
+                }
             }
             x += prime;
         }
@@ -257,6 +275,8 @@ public class QS {
             }
             subsets[i] = indices;
         }
+        System.out.println(Arrays.toString(matrix[zeroRows.get(0)]));
+        System.out.println(Arrays.toString(matrix[zeroRows.get(1)]));
 
         System.out.println(zeroRows);
         /*
