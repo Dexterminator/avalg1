@@ -23,7 +23,7 @@ public class QS {
     }
 
     public static BigInteger Q(BigInteger x, BigInteger n) {
-        BigInteger parenthesis = nRoot.add(x);
+        BigInteger parenthesis = x.add(nRoot);
         BigInteger q = parenthesis.multiply(parenthesis).subtract(n);
         return q;
         //double parenthesis = Math.floor(Math.sqrt(n.doubleValue())) + x.doubleValue();
@@ -161,7 +161,7 @@ public class QS {
         */
         boolean first = true;
         int lastIndexPlusOne;
-        while(factorBase.size() > smoothIndices.size()){
+        while(factorBase.size()+1 > smoothIndices.size()){
             if(first) {
                 lastIndexPlusOne = 0;
                 first = !first;
@@ -202,8 +202,6 @@ public class QS {
             if (sieveArray[x] < 0.1) {
                 System.out.println(sieveArray[x]);
                 smoothIndices.add(x);
-            } else {
-                //System.out.println(sieveArray[x]);
             }
             x += prime;
         }
