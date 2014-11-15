@@ -158,10 +158,16 @@ public class QS {
             }
         }
         */
+        ArrayList<double[]> rootList = new ArrayList<double[]>();
+        for(Integer prime: factorBase){
+            rootList.add(tonelliShanks(n, prime));
+        }
+
         boolean first = true;
         int time = 1;
         int offset;
-        while(factorBase.size() + 20 > smoothIndices.size()){
+        int c = 20;
+        while(factorBase.size() +20 > smoothIndices.size()){
             if(first) {
                 offset = 0;
                 first = !first;
@@ -171,8 +177,10 @@ public class QS {
             }
             sieveArray = getSieveArray(n, offset, (int) Math.pow(factorBase.size(), 2));
             //System.out.println(Arrays.toString(sieveArray));
+            int rootIndex = 0;
             for (Integer prime : factorBase) {
-                double[] roots = tonelliShanks(n, prime);
+                double[] roots = rootList.get(rootIndex);
+                rootIndex++;
                 for (double root : roots) {
                     double x;
                     if(first){
@@ -275,8 +283,8 @@ public class QS {
             }
             subsets[i] = indices;
         }
-        System.out.println(Arrays.toString(matrix[zeroRows.get(0)]));
-        System.out.println(Arrays.toString(matrix[zeroRows.get(1)]));
+        //System.out.println(Arrays.toString(matrix[zeroRows.get(0)]));
+        //System.out.println(Arrays.toString(matrix[zeroRows.get(1)]));
 
         System.out.println(zeroRows);
         /*
@@ -360,12 +368,13 @@ public class QS {
         System.out.println("squaredXs congruent to ys mod n: " + squaredXs.mod(n).equals(ys.mod(n)));
 
 
-        BigInteger a = BigIntegerMath.sqrt(squaredXs, RoundingMode.UNNECESSARY).mod(n);
-        BigInteger b = BigIntegerMath.sqrt(ys, RoundingMode.UNNECESSARY).mod(n);
+        BigInteger a = BigIntegerMath.sqrt(squaredXs, RoundingMode.UNNECESSARY);
+        BigInteger b = BigIntegerMath.sqrt(ys, RoundingMode.UNNECESSARY);
         System.out.println("a: " + a);
         System.out.println("b: " + b);
 
         BigInteger factor = PrimeUtils.gcd(a.subtract(b).abs(), n);
+        System.out.println(factor);
         return factor;
     }
 }
