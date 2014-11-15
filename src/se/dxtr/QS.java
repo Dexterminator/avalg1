@@ -322,26 +322,32 @@ public class QS {
      */
     private static BigInteger getFactor(ArrayList<Integer> subsetIndices, ArrayList<Integer> smoothIndices, BigInteger n) {
         //int root = (int) Math.ceil(Math.sqrt(n.doubleValue()));
-        BigInteger temp = BigInteger.valueOf(smoothIndices.get(subsetIndices.get(0))).add(nRoot);
-        BigInteger x = temp.multiply(temp);
-        //double x = Math.pow(smoothIndices.get(subsetIndices.get(0)) + root, 2);
-        BigInteger y = Q(BigInteger.valueOf(smoothIndices.get(subsetIndices.get(0))), n);
-        //BigInteger y = BigInteger.valueOf((long) Math.round(Math.exp(originalSieve[smoothIndices.get(subsetIndices.get(0))])));
+        BigInteger firstX = BigInteger.valueOf(smoothIndices.get(subsetIndices.get(0)));
+        BigInteger xPlusRoot = firstX.add(nRoot);
+        BigInteger squaredXs = xPlusRoot.multiply(xPlusRoot);
+        //double squaredXs = Math.pow(smoothIndices.get(subsetIndices.get(0)) + root, 2);
+        BigInteger ys = Q(firstX, n);
+        //BigInteger ys = BigInteger.valueOf((long) Math.round(Math.exp(originalSieve[smoothIndices.get(subsetIndices.get(0))])));
         for (int i = 1; i < subsetIndices.size(); i++) {
-            BigInteger temp2 = BigInteger.valueOf(smoothIndices.get(subsetIndices.get(i))).add(nRoot);
-            temp2 = temp2.multiply(temp2);
-            x = x.multiply(temp2);
-            y = y.multiply(Q(BigInteger.valueOf(smoothIndices.get(subsetIndices.get(i))), n));
-            //y = y.multiply(BigInteger.valueOf((long) Math.round(Math.exp(originalSieve[smoothIndices.get(subsetIndices.get(i))]))));
+            BigInteger currX = BigInteger.valueOf(smoothIndices.get(subsetIndices.get(i)));
+            BigInteger currXPlusRoot = currX.add(nRoot);
+            currXPlusRoot = currXPlusRoot.multiply(currXPlusRoot);
+            squaredXs = squaredXs.multiply(currXPlusRoot);
+            ys = ys.multiply(Q(currX, n));
+            //ys = ys.multiply(BigInteger.valueOf((long) Math.round(Math.exp(originalSieve[smoothIndices.get(subsetIndices.get(i))]))));
         }
-        // x congruent with y (mod n) at this point, sqrt to get the values to calculate gcd
+        // squaredXs congruent with ys (mod n) at this point, sqrt to get the values to calculate gcd
+        System.out.println("squaredXs mod n: " + squaredXs.mod(n));
+        System.out.println("ys mod n: " + ys.mod(n));
+        System.out.println("squaredXs congruent to ys mod n: " + squaredXs.mod(n).equals(ys.mod(n)));
 
-        BigInteger a = BigIntegerMath.sqrt(x, RoundingMode.UNNECESSARY).mod(n);
-        BigInteger b = BigIntegerMath.sqrt(y, RoundingMode.UNNECESSARY).mod(n);
-        System.out.println(a);
-        System.out.println(b);
 
-        BigInteger factor = PrimeUtils.gcd(a.subtract(b), n);
+        BigInteger a = BigIntegerMath.sqrt(squaredXs, RoundingMode.UNNECESSARY).mod(n);
+        BigInteger b = BigIntegerMath.sqrt(ys, RoundingMode.UNNECESSARY).mod(n);
+        System.out.println("a: " + a);
+        System.out.println("b: " + b);
+
+        BigInteger factor = PrimeUtils.gcd(a.subtract(b).abs(), n);
         return factor;
     }
 }
