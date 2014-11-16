@@ -167,7 +167,7 @@ public class QS {
         int time = 1;
         int offset;
         int c = 20;
-        while(factorBase.size() +20 > smoothIndices.size()){
+        while(factorBase.size()+20> smoothIndices.size()){
             if(first) {
                 offset = 0;
                 first = !first;
@@ -175,7 +175,7 @@ public class QS {
                 offset = sieveArray.length*time;
                 time++;
             }
-            sieveArray = getSieveArray(n, offset, (int) Math.pow(factorBase.size(), 2));
+            sieveArray = getSieveArray(n, offset, (int) Math.pow(10, 7));
             //System.out.println(Arrays.toString(sieveArray));
             int rootIndex = 0;
             for (Integer prime : factorBase) {
@@ -254,15 +254,28 @@ public class QS {
             expMatrix[i][j] = 1;
             j++;
         }
+
         return expMatrix;
     }
 
     public static ArrayList<Integer>[] processMatrix(int[][] matrix, int baseSize) {
         printMatrix(matrix);
         // Perform gaussian elimination
+        /*
         for (int col = 0; col < baseSize; col++) {
             gaussForColumn(matrix, col);
         }
+        */
+
+        int[] transTable = gauss(matrix, baseSize);
+        System.out.println();
+        printMatrix(matrix);
+        System.out.println();
+        System.out.println(Arrays.toString(transTable));
+        /*
+        for (int col = 0; col < baseSize; col++) {
+            gaussForColumn(matrix, col);
+        }*/
         //printMatrix(matrix);
 
         // Find all zero rows
@@ -294,6 +307,64 @@ public class QS {
         */
         return subsets;
     }
+
+    private static int[] gauss(int[][] matrix, int baseSize){
+        int n = matrix.length;
+        int m = matrix[0].length;
+
+        int[] transTable = new int[n];
+        for(int i = 0; i < baseSize; i++) {
+            for (int j = i; j < baseSize; j++) {
+                if (matrix[j][i] == 1) {
+                    int temp[] = matrix[i];
+                    matrix[i] = matrix[j];
+                    matrix[j] = temp;
+                }
+            }
+        }
+
+        int l = baseSize;
+        for (int i = 0; i < n; i++) {
+            for(int j = baseSize; j < m; j++){
+                if(matrix[i][j] == 1)
+                    transTable[i] = j-baseSize;
+            }
+        }
+
+        for(int i = 0; i < baseSize; i++){
+            for(int j = 0; j < n; j++){
+                if(j == i) continue;
+                if(matrix[j][i] == 1){
+                    for(int k = 0; k < m; k++){
+                        matrix[j][k] ^= matrix[i][k];
+                    }
+                }
+            }
+        }
+        return transTable;
+        /*
+        int l = baseSize;
+        for (int k = 0; k < n; k++) {
+            matrix[k][l] = 1;
+            l++;
+        }
+        for(int i = 0; i < baseSize; i++) {
+
+            for(int j = 0; j < n; j++){
+                if(j == i) continue;
+                if(matrix[j][i] == 1){
+                    for(int k = 0; k < baseSize; k++){
+                        matrix[j][k] ^= matrix[i][k];
+                    }
+                }
+            }
+        }
+        */
+
+    }
+
+
+
 
     private static boolean isZeroRow (int[] row, int baseSize) {
         for (int i = 0; i < baseSize; i++) {
@@ -368,8 +439,8 @@ public class QS {
         System.out.println("squaredXs congruent to ys mod n: " + squaredXs.mod(n).equals(ys.mod(n)));
 
 
-        BigInteger a = BigIntegerMath.sqrt(squaredXs, RoundingMode.UNNECESSARY);
-        BigInteger b = BigIntegerMath.sqrt(ys, RoundingMode.UNNECESSARY);
+        BigInteger a = BigIntegerMath.sqrt(squaredXs, RoundingMode.FLOOR);
+        BigInteger b = BigIntegerMath.sqrt(ys, RoundingMode.FLOOR);
         System.out.println("a: " + a);
         System.out.println("b: " + b);
 
