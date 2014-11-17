@@ -14,16 +14,16 @@ public class Main {
 
         BigInteger personnummer = new BigInteger("9112232872");
         //BigInteger longPersonnummer = new BigInteger("9112232872000000000000000000000000000000000000000000000000000000000001");
-        BigInteger longPersonnummer = new BigInteger("91122328720000000000000000000000000001");
+        BigInteger longPersonnummer = new BigInteger("911223287200000000000000000001");
 
-        BigInteger n = new BigInteger("1534000007");
-        //n = longPersonnummer;
+        BigInteger n = new BigInteger("15347");
+        n = longPersonnummer;
         System.out.println("N: " + n + "\n");
 
         ArrayList<Integer> factorBase = QS.factorBase(n, QS.getB(n));
         float[] sieve = QS.getSieveArray(n, 0, (int) Math.round(Math.pow(factorBase.size(), 2)));
         ArrayList<Integer> smoothIndices = QS.performSieving(sieve, factorBase, n);
-        int[][] expMatrix = QS.getExpMatrix(factorBase, smoothIndices, n);
+        BitSet[] expMatrix = QS.getExpMatrix(factorBase, smoothIndices, n);
         ArrayList<Integer>[] subsets = QS.processMatrix(expMatrix, factorBase.size());
         BigInteger factor = QS.getNonTrivialFactor(subsets, smoothIndices, n);
         if (factor != null) {

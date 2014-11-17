@@ -198,22 +198,29 @@ public class PrimeUtils {
      * @param a
      * @return
      */
-    public static ArrayList<BigInteger> trialDivision(BigInteger a){
-        ArrayList<BigInteger> retList = new ArrayList<BigInteger>();
+    public static void trialDivision(BigInteger a, ArrayList<BigInteger> retList, int fileNum) throws FileNotFoundException{
         FileInputStream file = null;
-        try {
-            file = new FileInputStream("src/se/dxtr/primes1.txt");
-            Kattio io = new Kattio(file);
-            while(io.hasMoreTokens()){
-                BigInteger temp = BigInteger.valueOf(io.getInt());
-                if(a.mod(temp).equals(BigInteger.ZERO))
-                    retList.add(temp);
+
+        file = new FileInputStream("src/se/dxtr/primes"+fileNum+".txt");
+        Kattio io = new Kattio(file);
+        while(io.hasMoreTokens()){
+            if(a.equals(BigInteger.ONE))
+                break;
+            BigInteger temp = BigInteger.valueOf(io.getInt());
+            while(a.mod(temp).equals(BigInteger.ZERO)){
+                a = a.divide(temp);
+                retList.add(temp);
             }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+
+        }
+        if(a.isProbablePrime(10)){
+            retList.add(a);
+            a = a.divide(a);
+        }
+        if(!a.equals(BigInteger.ONE)){
+            trialDivision(a, retList, fileNum+1);
         }
 
-        return retList;
     }
 
 
