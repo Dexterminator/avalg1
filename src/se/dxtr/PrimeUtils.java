@@ -13,6 +13,7 @@ import java.util.Random;
  */
 public class PrimeUtils {
     private final static SecureRandom random = new SecureRandom();
+    private final static SecureRandom sRand = new SecureRandom();
 
     public static BigInteger gcd(BigInteger a, BigInteger b) {
         if(b.equals(BigInteger.ZERO)){
@@ -76,6 +77,91 @@ public class PrimeUtils {
             }
         }
 
+        return factors;
+    }
+
+    public static BigInteger random(BigInteger n){
+        BigInteger r;
+        do {
+            r = new BigInteger(n.bitLength(), sRand);
+        } while (r.compareTo(n) >= 0);
+        return r;
+    }
+
+    public static BigInteger minFunc (BigInteger a, BigInteger b) {
+        if (a.compareTo(b) <= 0) {
+            return a;
+        } else return b;
+    }
+    public static BigInteger helpBrent(BigInteger n) {
+        BigInteger ys = BigInteger.ONE;
+        BigInteger x = BigInteger.ONE;
+
+        if (n.mod(BigInteger.valueOf(2)).equals(BigInteger.ZERO)) {
+            return BigInteger.valueOf(2);
+        }
+        BigInteger y = random(n);
+        BigInteger c = random(n);
+        BigInteger m = random(n);
+
+        BigInteger g = BigInteger.ONE;
+        BigInteger r = BigInteger.ONE;
+        BigInteger q = BigInteger.ONE;
+
+        while (g.equals(BigInteger.ONE)) {
+            x = y;
+            for (BigInteger i = BigInteger.ZERO; i.compareTo(r) <= 0; i = i.add(BigInteger.ONE)) { // zero == one??
+                y = y.multiply(y).mod(n).add(c).mod(n);
+            }
+            BigInteger k = BigInteger.ZERO;
+            while (k.compareTo(r) < 0 && g.equals(BigInteger.ONE)) {
+                ys = y;
+                BigInteger minRK = minFunc(m, r.subtract(k));
+                for (BigInteger i = BigInteger.ZERO; i.compareTo(minRK) < 0; i = i.add(BigInteger.ONE)) { //zero = one??
+                    y = y.multiply(y).mod(n).add(c).mod(n);
+                    q = q.multiply(x.subtract(y).abs()).mod(n);
+                }
+                g = gcd(q, n);
+                k = k.add(m);
+            }
+            r = r.multiply(BigInteger.valueOf(2));
+        }
+
+        if (g.equals(n)) {
+            while (true) {
+                ys = ys.multiply(ys).mod(n).add(c).mod(n);
+                g = gcd(x.subtract(ys).abs(), n);
+                if (g.compareTo(BigInteger.ONE) > 0) {
+                    break;
+                }
+            }
+        }
+        return g;
+    }
+
+    public static ArrayList<BigInteger> brent(BigInteger n){
+        ArrayList<BigInteger> factors = new ArrayList<BigInteger>();
+        if(n.isProbablePrime(10)){
+            factors.add(n);
+            factors.add(BigInteger.valueOf(1));
+        }
+        BigInteger possiblePrime = helpBrent(n);
+        while(true){
+            if(possiblePrime.isProbablePrime(5)){
+                factors.add(possiblePrime);
+                n = n.divide(possiblePrime);
+                if(n.equals(BigInteger.ONE)){
+                    break;
+                } else if (n.isProbablePrime(5)){
+                    factors.add(n);
+                    break;
+                }
+                possiblePrime = helpBrent(n);
+            }
+            else {
+                possiblePrime = helpBrent(possiblePrime);
+            }
+        }
         return factors;
     }
 

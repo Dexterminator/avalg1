@@ -84,6 +84,7 @@ public class QS {
         if (S == 1) {
             // Case when p mod 4 = 3
             R = PrimeUtils.modPow2(n, BigInteger.valueOf((p + 1) / 4), BigInteger.valueOf(p));
+            //return new double[]{R.doubleValue(), -R.doubleValue()};
         } else {
             double res = 0;
             int Z = 2;
@@ -131,7 +132,7 @@ public class QS {
         return ret;
     }
 
-    public static float[] getSieveArray (BigInteger n, int firstVal, int size){
+    public static float[] getSieveArray (BigInteger n, long firstVal, int size){
         //TODO: CHECK IF THIS NEEDS TO BE ROUNDED
         double tmpFirstX = Math.ceil(Math.sqrt(n.doubleValue())) + firstVal;
         BigInteger firstX = new BigDecimal(tmpFirstX).toBigInteger();
@@ -166,10 +167,11 @@ public class QS {
         }
 
         boolean first = true;
-        int time = 1;
-        int offset;
+        int time = 0;
+        int offset = 0;
         int c = 20;
         while(factorBase.size()+c > smoothIndices.size()){
+            /*
             if(first) {
                 offset = 0;
                 first = !first;
@@ -177,6 +179,14 @@ public class QS {
                 offset = sieveArray.length*time;
                 time++;
             }
+            */
+            if(first) {
+                offset = 0;
+
+            } else {
+                offset = offset + sieveArray.length;
+            }
+            time++;
             sieveArray = getSieveArray(n, offset, (int) Math.pow(10, 7));
             //System.out.println(Arrays.toString(sieveArray));
             int rootIndex = 0;
@@ -184,16 +194,26 @@ public class QS {
                 double[] roots = rootList.get(rootIndex);
                 rootIndex++;
                 for (double root : roots) {
-                    double x;
-                    if(!first)
-                        root = prime-root-offset % prime;
-                    x = (BigInteger.valueOf((long) root).subtract(nRoot).mod(BigInteger.valueOf(prime))).doubleValue();
+                    int x;
+                    x =(int) (BigInteger.valueOf((long) root).subtract(nRoot).mod(BigInteger.valueOf(prime))).longValue() - offset;
+                    /*
+                    if(!first) {
+
+                        x = (int) (prime - root - offset % prime);
+
+                    } else {
+                        x =(int) (BigInteger.valueOf((long) root).subtract(nRoot).mod(BigInteger.valueOf(prime))).longValue();
+
+                    }
+                    */
                     //double x = (root - Math.ceil(Math.sqrt(n.doubleValue()))) % prime;
                     while(x<0)
                         x += prime;
-                    sieveDivision(sieveArray, prime, (int) x, offset, smoothIndices, n);
+                    sieveDivision(sieveArray, prime, x, offset, smoothIndices, n);
                 }
             }
+            first = false;
+            //System.out.println(offset);
             //System.out.println(factorBase.size());
             //System.out.println(smoothIndices.size());
         }
@@ -212,15 +232,16 @@ public class QS {
             }
             */
             //TODO: use x to calculate Q(x) again, check the mod. Done?
-            BigInteger temp = Q(BigInteger.valueOf(x+offset), n);
-            while(temp.mod(BigInteger.valueOf(prime)).equals(BigInteger.ZERO)){
+
+            BigInteger temp = Q(BigInteger.valueOf(x), n);
+            do{
                 sieveArray[x] -= Math.log(prime);
                 temp = temp.divide(BigInteger.valueOf(prime));
-            }
+            } while(temp.mod(BigInteger.valueOf(prime)).equals(BigInteger.ZERO));
             if (sieveArray[x] < 0.1) {
                 //System.out.println(sieveArray[x]);
-                if(!smoothIndices.contains(x + offset)) {
-                    smoothIndices.add(x + offset);
+                if(!smoothIndices.contains((int) (x + offset))) {
+                    smoothIndices.add((int) (x + offset));
                     //System.out.println(x+offset);
                 }
             }
@@ -232,47 +253,61 @@ public class QS {
         BitSet[] expMatrix = new BitSet[smoothIndices.size()];
 
         for (int i = 0; i < smoothIndices.size(); i++) {
-            int smoothIndex = smoothIndices.get(i);
+            long smoothIndex = smoothIndices.get(i);
             // TODO: Use smoothIndex to calculate Q(x) again, as well as probably use Trial Division instead. Done?
 
             ArrayList<BigInteger> factors = new ArrayList<BigInteger>();
+            /*
             try {
                 PrimeUtils.trialDivision(Q(BigInteger.valueOf(smoothIndex), n), factors, 1);
             } catch(FileNotFoundException e){
                 e.printStackTrace();
                 System.exit(1);
             }
+            */
             //ArrayList<BigInteger> factors = PrimeUtils.pollardRho(BigInteger.valueOf(Math.round(Math.exp(originalSieve[smoothIndex]))));
             //System.out.println(Math.exp(originalSieve[smoothIndex]));
             //System.out.println(factors);
             //System.out.println(factorBase);
             //BitSet temp = new BitSet(factorBase.size() + smoothIndices.size());
-            byte[] row = new byte[factorBase.size() + smoothIndices.size()];
+            BitSet testRow = new BitSet(factorBase.size()+smoothIndices.size());
+            for(Integer factor: factorBase){
+                BigInteger val =  Q(BigInteger.valueOf(smoothIndex), n);
+                while(val.mod(BigInteger.valueOf(factor)).equals(BigInteger.ZERO)){
+                    val = val.divide(BigInteger.valueOf(factor));
+                    testRow.flip(factorBase.indexOf(factor));
+                }
+            }
+
             /*
             for(int j = 0; j < factorBase.size()+smoothIndices.size(); j++){
                 row[j] = 0;
             }
             */
+            /*
             for (BigInteger factor : factors) {
                 //temp.flip(factorBase.indexOf(factor.intValue()));
                 row[factorBase.indexOf(factor.intValue())] ^= 1;
 
                 //expMatrix[i][factorBase.indexOf(factor.intValue())] ^= 1;
-            }
+            }*/
+            /*
             BitSet temp = new BitSet(factorBase.size()+smoothIndices.size());
             for(int j = 0; j < factorBase.size()+smoothIndices.size(); j++){
                 if(row[j] == 1){
                     temp.set(j);
                 }
             }
+            */
             //System.out.println(Arrays.toString(row));
 
-            expMatrix[i] = temp;
+            expMatrix[i] = testRow;
         }
 
         // Append the identity matrix to the exponent matrix
 
         int j = factorBase.size();
+        //System.out.println(j);
         for (int i = 0; i < expMatrix.length; i++) {
             BitSet temp = expMatrix[i];
             temp.set(j);
@@ -295,15 +330,15 @@ public class QS {
 
 
 
-        gauss(matrix, baseSize);
+        //gauss(matrix, baseSize);
         //System.out.println();
         //printMatrix(matrix);
         //System.out.println();
         //System.out.println(Arrays.toString(transTable));
-        /*
-        for (int col = 0; col < baseSize; col++) {
+
+        for (int col = 0; col < baseSize; col++)
             gaussForColumn(matrix, col);
-        }*/
+
         //printMatrix(matrix);
 
         // Find all zero rows
@@ -342,13 +377,23 @@ public class QS {
         int n = matrix.length;
         int m = matrix[0].size();
 
-        int[] transTable = new int[n];
         for(int i = 0; i < baseSize; i++) {
             for (int j = i; j < baseSize; j++) {
                 if (matrix[j].get(i) == true) {
                     BitSet temp = matrix[i];
                     matrix[i] = matrix[j];
                     matrix[j] = temp;
+                }
+            }
+            for(int j = 0; j < n; j++){
+                if(j == i) continue;
+                if(matrix[j].get(i) == true){
+                    matrix[j].xor(matrix[i]);
+                    /*
+                    for(int k = 0; k < m; k++){
+                        matrix[j][k] ^= matrix[i][k];
+                    }
+                    */
                 }
             }
         }
@@ -400,38 +445,31 @@ public class QS {
 
 
     private static boolean isZeroRow (BitSet row, int baseSize) {
-        for (int i = 0; i < baseSize; i++) {
-            if(row.get(i)){
-                return false;
-            }
-            /*
-            if (row[i] != 0)
-                return false;
-                */
-        }
+        if(row.nextSetBit(0) < baseSize)
+            return false;
+
         return true;
     }
 
-    public static void gaussForColumn (int[][] matrix, int column) {
+    public static void gaussForColumn (BitSet[] matrix, int column) {
         for (int row = 0; row < matrix.length; row++) {
-            if (matrix[row][column] == 1) {
+            if (matrix[row].get(column)) {
                 performSubtractions(matrix, row, column);
                 return;
             }
         }
     }
 
-    private static void performSubtractions(int[][] matrix, int rowToSubtract, int column) {
+    private static void performSubtractions(BitSet[] matrix, int rowToSubtract, int column) {
         for (int row = 0; row < matrix.length; row++) {
-            if (row != rowToSubtract && matrix[row][column] == 1)
+            if (row != rowToSubtract && matrix[row].get(column))
                 subtractRow(matrix, rowToSubtract, row);
         }
     }
 
-    private static void subtractRow(int[][] matrix, int row1, int row2) {
-        for (int i = 0; i < matrix[row2].length; i++) {
-            matrix[row2][i] ^= matrix[row1][i];
-        }
+    private static void subtractRow(BitSet[] matrix, int row1, int row2) {
+        matrix[row2].xor(matrix[row1]);
+
     }
 
     private static void printMatrix(BitSet[] matrix) {

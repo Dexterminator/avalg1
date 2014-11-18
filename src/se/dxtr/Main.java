@@ -16,7 +16,7 @@ public class Main {
         //BigInteger longPersonnummer = new BigInteger("9112232872000000000000000000000000000000000000000000000000000000000001");
         BigInteger longPersonnummer = new BigInteger("911223287200000000000000000001");
 
-        BigInteger n = new BigInteger("15347");
+        BigInteger n = new BigInteger("1534000007");
         n = longPersonnummer;
         System.out.println("N: " + n + "\n");
 
