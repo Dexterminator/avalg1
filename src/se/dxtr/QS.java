@@ -57,7 +57,7 @@ public class QS {
         ArrayList<Integer> factorBase = new ArrayList<Integer>();
         factorBase.add(2);
         for (int i = 2; i < b; i++) {
-            if (BigInteger.valueOf(i).isProbablePrime(10)) {
+            if (PrimeUtils.millerRabin(BigInteger.valueOf(i), 10)) {
                 if (legendre(n, i) == 1) {
                     factorBase.add(i);
                 }
